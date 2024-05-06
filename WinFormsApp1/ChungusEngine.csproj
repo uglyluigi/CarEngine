@@ -21,7 +21,7 @@
 
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="robocopy shaders $(TargetDir)\shaders /E /NFL /NDL /NJH /NJS /nc /ns /np&#xD;&#xA;robocopy models $(TargetDir)\models /E /NFL /NDL /NJH /NJS /nc /ns /np" />
+	  <Exec Command="robocopy shaders $(TargetDir)\shaders /IM /E /NFL /NDL /NJH /NJS /nc /ns /np&#xD;&#xA;robocopy models $(TargetDir)\models /IM /E /NFL /NDL /NJH /NJS /nc /ns /np" ContinueOnError="true" />
 	</Target>
 
 </Project>

@@ -109,7 +109,6 @@ namespace ChungusEngine
                 textures.AddRange(diffuseMaps);
                 var specularMaps = LoadMaterialTextures(material, TextureType.Specular);
                 textures.AddRange(specularMaps);
-
             }
 
             return new Mesh(vertices, indices, textures);
@@ -133,9 +132,7 @@ namespace ChungusEngine
         uint TextureFromFile(string path, string directory)
         {
             string filename = $"{directory}/{path}";
-            uint[] id = new uint[1];
-            Gl.GenTextures(id);
-            uint textureId = id[0];
+            uint textureId = Gl.GenTexture();
 
             using (Image<Rgba32> image = SixLabors.ImageSharp.Image.Load<Rgba32>(filename))
             {

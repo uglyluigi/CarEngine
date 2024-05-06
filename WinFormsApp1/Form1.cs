@@ -18,6 +18,7 @@ namespace ChungusEngine
     {
         private static Model model;
         private static ShaderProgram program;
+        private static float angle = 0.0f;
 
         #region Constructors
 
@@ -69,19 +70,31 @@ namespace ChungusEngine
             Gl.Viewport(0, 0, senderControl.ClientSize.Width, senderControl.ClientSize.Height);
             Gl.Clear(ClearBufferMask.ColorBufferBit);
 
-            RenderControl_RenderGL320();
+
+            // Compute the model-view-projection on CPU
+            Matrix4x4f projection = Matrix4x4f.Perspective(90.0f, (float)senderControl.ClientSize.Width / senderControl.ClientSize.Height, 0.1f, 100.0f);
+            Matrix4x4f modelview = Matrix4x4f.Scaled(0.01f, 0.01f, 0.01f)  * Matrix4x4f.RotatedZ(angle);
+
+
+            program.Use();
+
+            // Set uniform state
+            Gl.UniformMatrix4f(program.LocationMVP, 1, false, projection * modelview);
+            // Use the vertex array
+            model.Draw(program);
+            
         }
 
         private void RenderControl_CreateGL320()
         {
             program = new ShaderProgram("shaders/vertex.glsl", "shaders/fragment.glsl");
-            model = new Model("models/backpack/backpack.obj");
+            model = new Model("models/cube.obj");
             model.LoadModel();
         }
 
         private void RenderControl_ContextUpdate(object sender, GlControlEventArgs e)
         {
-
+            angle += 0.01f;
         }
 
         private void RenderControl_ContextDestroying(object sender, GlControlEventArgs e)
@@ -105,102 +118,6 @@ namespace ChungusEngine
 
         #endregion
 
-        #region Common Shading
 
-        // Note: abstractions for drawing using programmable pipeline.
-
-        /// <summary>
-        /// Shader object abstraction.
-        /// </summary>
-        private class Object : IDisposable
-        {
-            public Object(ShaderType shaderType, string[] source)
-            {
-                if (source == null)
-                    throw new ArgumentNullException(nameof(source));
-
-                // Create
-                ShaderName = Gl.CreateShader(shaderType);
-                // Submit source code
-                Gl.ShaderSource(ShaderName, source);
-                // Compile
-                Gl.CompileShader(ShaderName);
-                // Check compilation status
-                int compiled;
-
-                Gl.GetShader(ShaderName, ShaderParameterName.CompileStatus, out compiled);
-                if (compiled != 0)
-                    return;
-
-                // Throw exception on compilation errors
-                const int logMaxLength = 1024;
-
-                StringBuilder infolog = new StringBuilder(logMaxLength);
-                int infologLength;
-
-                Gl.GetShaderInfoLog(ShaderName, logMaxLength, out infologLength, infolog);
-
-                throw new InvalidOperationException($"unable to compile shader: {infolog}");
-            }
-
-            public readonly uint ShaderName;
-
-            public void Dispose()
-            {
-                Gl.DeleteShader(ShaderName);
-            }
-        }
-
-        /// <summary>
-        /// Buffer abstraction.
-        /// </summary>
-        private class Buffer : IDisposable
-        {
-            public Buffer(float[] buffer)
-            {
-                if (buffer == null)
-                    throw new ArgumentNullException(nameof(buffer));
-
-                // Generate a buffer name: buffer does not exists yet
-                BufferName = Gl.GenBuffer();
-                // First bind create the buffer, determining its type
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, BufferName);
-                // Set buffer information, 'buffer' is pinned automatically
-                Gl.BufferData(BufferTarget.ArrayBuffer, (uint)(4 * buffer.Length), buffer, BufferUsage.StaticDraw);
-            }
-
-            public readonly uint BufferName;
-
-            public void Dispose()
-            {
-                Gl.DeleteBuffers(BufferName);
-            }
-        }
-
-        #endregion
-
-        #region Shaders
-
-        private void RenderControl_RenderGL320()
-        {
-            // Compute the model-view-projection on CPU
-            Matrix4x4f projection = Matrix4x4f.Ortho2D(-1.0f, +1.0f, -1.0f, +1.0f);
-            Matrix4x4f modelview = Matrix4x4f.Translated(-0.5f, -0.5f, 0.0f) * Matrix4x4f.RotatedZ(_Angle);
-
-            program.Use();
-
-            // Set uniform state
-            Gl.UniformMatrix4f(program.LocationMVP, 1, false, projection * modelview);
-            // Use the vertex array
-            model.Draw(program);
-        }
-
-        #endregion
-
-        #region Common Data
-
-        private static float _Angle;
-
-        #endregion
     }
 }
