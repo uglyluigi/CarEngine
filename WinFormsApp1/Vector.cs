@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ChungusEngine.Vector
 {
@@ -11,7 +12,7 @@ namespace ChungusEngine.Vector
         public readonly float X => x;
         public readonly float Y => y;
 
-        public readonly float Magnitude { get { return MathF.Sqrt(X * X + Y * Y); } }
+        public float Magnitude { get { return MathF.Sqrt(X * X + Y * Y); } }
 
         public Vec3 ToVec3()
         {
@@ -53,7 +54,7 @@ namespace ChungusEngine.Vector
             return new(l.X / r.X, l.Y / r.Y);
         }
 
-        public readonly override string ToString()
+        public override string ToString()
         {
             return $"({X}, {Y})";
         }
@@ -69,7 +70,7 @@ namespace ChungusEngine.Vector
         public readonly float Y => y;
         public readonly float Z => z;
 
-        public readonly float Magnitude { get { return MathF.Sqrt(X * X + Y * Y + Z * Z); } }
+        public float Magnitude { get { return MathF.Sqrt(X * X + Y * Y + Z * Z); } }
 
         public float Dot(Vec3 r, float theta)
         {
@@ -106,7 +107,35 @@ namespace ChungusEngine.Vector
             return new(l.X / r.X, l.Y / r.Y, l.Z / r.Z);
         }
 
-        public readonly override string ToString()
+        public static Vec3 operator +(Vec3 l, (float v1, float v2, float v3) tuple)
+        {
+            return new(l.X + tuple.v1, l.Y + tuple.v2, l.Z + tuple.v3);
+        }
+
+        public static Vec3 operator *(Vec3 l, (float v1, float v2, float v3) tuple)
+        {
+            return new(l.X * tuple.v1, l.Y * tuple.v2, l.Z * tuple.v3);
+        }
+
+        public static Vec3 operator /(Vec3 l, (float v1, float v2, float v3) tuple)
+        {
+            if (tuple is (< 0, _, _) or (_, < 0, _) or (_, _, < 0))
+            {
+                Debug.WriteLine($"Warning: vector being divided by tuple with 0 in it. {tuple}");
+            }
+
+            return new(
+                l.X / tuple.v1 == 0 ? 1 : tuple.v1, 
+                l.Y / tuple.v2 == 0 ? 1 : tuple.v2, 
+                l.Z / tuple.v3 == 0 ? 1 : tuple.v3);
+        }
+
+        public static Vec3 FromTuple((float v1, float v2, float v3) tuple)
+        {
+            return new Vec3(tuple.v1, tuple.v2, tuple.v3);
+        }
+
+        public override string ToString()
         {
             return $"({X}, {Y}, {Z})";
         }
