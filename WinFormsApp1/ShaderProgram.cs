@@ -8,6 +8,7 @@ namespace ChungusEngine
     {
         public uint id;
         public int LocationMVP;
+        public int WorldScaleMat;
         private uint vertex, fragment;
 
         // Little function for adding newlines at the end of shader source
@@ -56,6 +57,13 @@ namespace ChungusEngine
             if (LocationMVP < 0)
             {
                 throw new InvalidOperationException("No uMVP uniform in this shader program");
+            }
+
+            WorldScaleMat = Gl.GetUniformLocation(id, "WorldScaleMat");
+
+            if (WorldScaleMat < 0)
+            {
+                throw new InvalidOperationException("WorldScaleMat unavailable");
             }
         }
 

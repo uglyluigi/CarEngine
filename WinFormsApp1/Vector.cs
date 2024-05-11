@@ -130,9 +130,19 @@ namespace ChungusEngine.Vector
                 l.Z / tuple.v3 == 0 ? 1 : tuple.v3);
         }
 
+        public static implicit operator Vec3((float, float, float) v)
+        {
+            return FromTuple(v);
+        }
+
         public static Vec3 FromTuple((float v1, float v2, float v3) tuple)
         {
             return new Vec3(tuple.v1, tuple.v2, tuple.v3);
+        }
+
+        public static (float, float, float) AsTuple(Vec3 vec)
+        {
+            return (vec.X,  vec.Y, vec.Z);
         }
 
         public override string ToString()
