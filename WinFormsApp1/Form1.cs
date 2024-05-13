@@ -42,6 +42,10 @@ namespace ChungusEngine
         private static (float X, float Y) MouseDelta = new();
         private static Point PrevCursorPos = Cursor.Position;
 
+        private static uint DebugCubeVAO = 0;
+
+        private static Vec3 DebugCubeTheta = Vec3.Zero;
+
         /// <summary>
         /// Construct a SampleForm.
         /// </summary>
@@ -66,6 +70,13 @@ namespace ChungusEngine
             PrevCursorPos = CursorPos;
             Debug.WriteLine($"Mouse delta: {MouseDelta}");
             ApplyCameraRotation(MouseDelta);
+            //CenterMousePosition();
+        }
+
+        private void CenterMousePosition()
+        {
+            var (X, Y) = (Location.X, Location.Y);
+            Cursor.Position = new(X + Width / 2, Y + Height / 2);
         }
 
         private void ApplyCameraRotation((float X, float Y) mouseDelta)
@@ -123,23 +134,130 @@ namespace ChungusEngine
 
             // apply velocity to camera
 
-            Camera.Position += CamVelocity;
-            //Camera.View *= Matrix4x4f.RotatedX(Theta.X) * Matrix4x4f.RotatedY(Theta.Y) * Matrix4x4f.RotatedZ(Theta.Z);
+            //Camera.Position += CamVelocity;
 
             Program.Use();
             // Set uniform state
-            Gl.UniformMatrix4f(Program.LocationMVP, 1, false, Camera.MVP);
+            DebugCubeTheta += (0.0f, 0.3f, 0.0f);
+            Camera.RotateMat = Matrix4x4f.RotatedY(DebugCubeTheta.Y);
+            Gl.UniformMatrix4f(Program.LocationMVP, 1, false, Camera.MVP_DEBUG);
             Gl.UniformMatrix4f(Program.WorldScaleMat, 1, false, Matrix4x4f.Identity);
             // Use the vertex array
-            Model.Draw(Program);
+            //Model.Draw(Program);
+            DrawDebugCube();
         }
+
+
+
 
         private void RenderControl_CreateGL320()
         {
-            Program = new ShaderProgram("shaders/vertex.glsl", "shaders/fragment.glsl");
-            Model = new Model("models/cube.obj");
-            Model.LoadModel();
+            Program = new ShaderProgram("shaders/vertex_debug.glsl", "shaders/fragment_debug.glsl");
+            //Model = new Model("models/cube.obj");
+            // Model.LoadModel();
+
+            SetupDebugCube();
         }
+
+        private void DrawDebugCube()
+        {
+            Gl.BindVertexArray(DebugCubeVAO);
+            Gl.DrawElements(PrimitiveType.Triangles, 6 * 2 * 3, DrawElementsType.UnsignedShort, null);
+            Gl.BindVertexArray(0);
+        }
+
+        #region DebugCube
+
+        readonly float[] CubeVertices = 
+        [
+            // Front face
+             0.5f,  0.5f,  0.5f,
+            -0.5f,  0.5f,  0.5f,
+            -0.5f, -0.5f,  0.5f,
+             0.5f, -0.5f,  0.5f,
+
+            // Back face
+             0.5f,  0.5f, -0.5f,
+            -0.5f,  0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+             0.5f, -0.5f, -0.5f,
+        ];
+
+        readonly float[] CubeColors =
+        [
+            1.0f, 0.4f, 0.6f,
+            1.0f, 0.9f, 0.2f,
+            0.7f, 0.3f, 0.8f,
+            0.5f, 0.3f, 1.0f,
+
+            0.2f, 0.6f, 1.0f,
+            0.6f, 1.0f, 0.4f,
+            0.6f, 0.8f, 0.8f,
+            0.4f, 0.8f, 0.8f,
+        ];
+
+        readonly ushort[] CubeTriangleIndices = 
+        [
+            // Front
+            0, 1, 2,
+            2, 3, 0,
+
+            // Right
+            0, 3, 7,
+            7, 4, 0,
+
+            // Bottom
+            2, 6, 7,
+            7, 3, 2,
+
+            // Left
+            1, 5, 6,
+            6, 2, 1,
+
+            // Back
+            4, 7, 6,
+            6, 5, 4,
+
+            // Top
+            5, 1, 0,
+            0, 4, 5,
+        ];
+
+        readonly float[] CubeNormals =
+        [
+            0, 0, -1,
+            1, 0, 0,
+            0, -1, 0,
+            -1, 0, 0,
+            0, 0, 1,
+            0, 1, 0
+        ];
+
+        private void SetupDebugCube()
+        {
+            DebugCubeVAO = Gl.GenVertexArray();
+            Gl.BindVertexArray( DebugCubeVAO );
+
+            uint CubeVBO = Gl.GenBuffer();
+            Gl.BindBuffer(BufferTarget.ArrayBuffer, CubeVBO);
+            Gl.BufferData(BufferTarget.ArrayBuffer, Convert.ToUInt32(sizeof(float) * CubeVertices.Length), CubeVertices, BufferUsage.StaticDraw);
+
+            uint IndicesBufferObj = Gl.GenBuffer();
+            Gl.BindBuffer(BufferTarget.ElementArrayBuffer, IndicesBufferObj);
+            Gl.BufferData(BufferTarget.ElementArrayBuffer, Convert.ToUInt32(sizeof(ushort) * CubeTriangleIndices.Length), CubeTriangleIndices, BufferUsage.StaticDraw);
+
+
+            // Position attrib
+            Gl.VertexAttribPointer(0, 3, VertexAttribType.Float, false, 0, 0);
+            Gl.EnableVertexAttribArray(0);
+
+
+            Gl.BindVertexArray(0);
+            Gl.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            Gl.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        }
+
+        #endregion
 
         private void RenderControl_ContextUpdate(object sender, GlControlEventArgs e)
         {
@@ -245,12 +363,6 @@ namespace ChungusEngine
                     CamVelocity *= (1.0f, 1.0f, 0.0f);
                     break;
             }
-        }
-
-
-        private void Form1_MouseDown(object? sender, MouseEventArgs e)
-        {
-
         }
 
         private static void GLDebugProc(DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)

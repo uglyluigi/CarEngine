@@ -98,7 +98,7 @@ namespace ChungusEngine
             {
                 foreach (var index in face.Indices)
                 {
-                    indices.Add((uint)index);
+                    indices.Add(Convert.ToUInt32(index));
                 }
             }
 
