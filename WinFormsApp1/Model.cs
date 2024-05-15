@@ -1,6 +1,5 @@
 ﻿using Assimp;
 using ChungusEngine.Vector;
-using MathNet.Numerics.LinearAlgebra;
 using OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;

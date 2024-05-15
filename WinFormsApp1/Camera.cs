@@ -13,7 +13,7 @@ namespace ChungusEngine
 
         public Matrix4x4f Perspective()
         {
-            return Matrix4x4f.Perspective(90.0f, 800.0f / 600.0f, 1.0f, 5.0f);
+            return Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 5.0f);
         }
 
         public Matrix4x4f Ortho()
@@ -26,7 +26,7 @@ namespace ChungusEngine
             return Matrix4x4f.Identity;
         }
 
-        public System.Numerics.Quaternion Rotation { get; set; }
+        public Quaternion Rotation { get; set; }
 
         private Matrix4x4f RotMatrix { get { return QuatToMatrix(Rotation); } }
 
@@ -34,7 +34,7 @@ namespace ChungusEngine
 
         public Matrix4x4f RotateMat { get; set; }
 
-        public Matrix4x4f MVP_DEBUG { get { return RotateMat * Matrix4x4f.Translated(0.0f, 0.0f, -3.0f) * Perspective(); } }
+        public Matrix4x4f MVP_DEBUG { get { return RotMatrix * Matrix4x4f.Translated(0.0f, 0.0f, -3.0f) * Perspective(); } }
 
         public Vec3 Position { get; set; }
 
@@ -59,7 +59,7 @@ namespace ChungusEngine
                 new Matrix4x4f(
                     W, Z, -Y, -X,
                     -Z, W, X, -Y,
-                    Y, -X, W, -Z,
+                    Y, -X, W, -Z, 
                     X, Y, Z, W
                 );
         }

@@ -7,8 +7,11 @@ namespace ChungusEngine
     public class ShaderProgram : IDisposable
     {
         public uint id;
-        public int LocationMVP;
-        public int WorldScaleMat;
+
+        public int ModelMatrix;
+        public int ViewMatrix;
+        public int ProjectionMatrix;
+
         private uint vertex, fragment;
 
         // Little function for adding newlines at the end of shader source
@@ -52,18 +55,25 @@ namespace ChungusEngine
                 Debug.WriteLine("--- Shader Compiler Output ---\n" + compilerOutput.ToString());
             }
 
-            LocationMVP = Gl.GetUniformLocation(id, "uMVP");
+            ModelMatrix = Gl.GetUniformLocation(id, "ModelMatrix");
 
-            if (LocationMVP < 0)
+            if (ModelMatrix < 0)
             {
-                throw new InvalidOperationException("No uMVP uniform in this shader program");
+                throw new InvalidOperationException("No ModelMatrix in this shader program");
             }
 
-            WorldScaleMat = Gl.GetUniformLocation(id, "WorldScaleMat");
+            ViewMatrix = Gl.GetUniformLocation(id, "ViewMatrix");
 
-            if (WorldScaleMat < 0)
+            if (ViewMatrix < 0)
             {
-                throw new InvalidOperationException("WorldScaleMat unavailable");
+                throw new InvalidOperationException("ViewMatrix unavailable");
+            }
+
+            ProjectionMatrix = Gl.GetUniformLocation(id, "ProjectionMatrix");
+
+            if (ProjectionMatrix < 0)
+            {
+                throw new InvalidOperationException("ProjectionMatrix unavailable");
             }
         }
 
