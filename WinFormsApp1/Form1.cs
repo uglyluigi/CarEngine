@@ -1,9 +1,7 @@
-﻿using ChungusEngine.Vector;
-using Khronos;
+﻿using Khronos;
 using OpenGL;
 using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Text;
 using Quaternion = System.Numerics.Quaternion;
 
@@ -35,8 +33,6 @@ namespace ChungusEngine
 
         private static ShaderProgram Program;
 
-        private static (uint X, uint Y, uint Z) AxisGridVAOs = new();
-
         private static (float X, float Y) MouseDelta = new();
         private static Point PrevCursorPos = Cursor.Position;
 
@@ -62,11 +58,10 @@ namespace ChungusEngine
         }
 
         private void TheMouseMoved()
-        { 
+        {
             Point CursorPos = Cursor.Position;
             MouseDelta = (PrevCursorPos.X - CursorPos.X, PrevCursorPos.Y - CursorPos.Y);
             PrevCursorPos = CursorPos;
-            ApplyCameraRotation(MouseDelta);
         }
 
         private void CenterMousePosition()
@@ -75,23 +70,7 @@ namespace ChungusEngine
             Cursor.Position = new(X + Width / 2, Y + Height / 2);
         }
 
-        private void ApplyCameraRotation((float X, float Y) mouseDelta)
-        {
-            const float sensitivity = 0.005f;
 
-            // Users are more used to X-axis movements on the mouse corresponding to horizontal rotation
-            // and Y-axis movements corresponding to vertical rotation.
-            // Originally, the x-Axis quaternion was created wrt. the X-axis and the mouse's change in X.
-            // with the Y-axis the same way, except with the mouse's Y-delta.
-            // This actually produces an inverted rotation where X movements move the cube up and down (really,
-            // down and up) and Y-movements move it left and right (really right and left). So, I swapped them around
-            // and now the rotation works as I expect. I should really figure out how these things work
-            // to avoid issues later.
-            var xAxis = Quaternion.CreateFromAxisAngle(new Vector3(1.0f, 0.0f, 0.0f), -mouseDelta.Y * sensitivity);
-            var yAxis = Quaternion.CreateFromAxisAngle(new Vector3(0.0f, 1.0f, 0.0f), -mouseDelta.X * sensitivity);
-
-            Camera.Rotation *= xAxis * yAxis;
-        }
 
         #region Event Handling
 
@@ -139,7 +118,7 @@ namespace ChungusEngine
             Program.Use();
             // Set uniform state
 
-            Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Matrix4x4f.Identity);
+            Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Camera.View());
             Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Matrix4x4f.Translated(0.0f, 0.0f, -3.0f) * Camera.Perspective());
 
             foreach (var Model in ModelList)
@@ -166,6 +145,8 @@ namespace ChungusEngine
                 -0.5f, -0.5f, -0.5f,
                  0.5f, -0.5f, -0.5f,
             ];
+
+           
 
             float[] colors = [
                 1.0f, 0.4f, 0.6f,
@@ -204,8 +185,8 @@ namespace ChungusEngine
                 0, 4, 5,
             ];
 
-            list.Add(new SimpleModel("Cube 1", Matrix4x4f.Identity, vertices, colors, indices));
-            list.Add(new SimpleModel("Cube 2", Matrix4x4f.Identity, vertices, colors, indices));
+            list.Add(new SimpleModel("Cube 1", Matrix4x4f.Translated(0.6f, 0.0f, 0.0f), vertices, colors, indices));
+            list.Add(new SimpleModel("Cube 2", Matrix4x4f.Translated(-0.6f, 0.0f, 0.0f), vertices, colors, indices));
 
             return list;
         }
@@ -213,16 +194,6 @@ namespace ChungusEngine
 
         private void RenderControl_ContextUpdate(object sender, GlControlEventArgs e)
         {
-        }
-
-        public static void DrawAxisGrid()
-        {
-            Gl.BindVertexArray(AxisGridVAOs.X);
-            Gl.DrawArrays(PrimitiveType.Lines, 0, 1);
-            Gl.BindVertexArray(AxisGridVAOs.Y);
-            Gl.DrawArrays(PrimitiveType.Lines, 0, 1);
-            Gl.BindVertexArray(AxisGridVAOs.Z);
-            Gl.DrawArrays(PrimitiveType.Lines, 0, 1);
         }
 
         private void RenderControl_ContextDestroying(object sender, GlControlEventArgs e)

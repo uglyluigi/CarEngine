@@ -119,14 +119,14 @@ namespace ChungusEngine.Vector
 
         public static Vec3 operator /(Vec3 l, (float v1, float v2, float v3) tuple)
         {
-            if (tuple is (< 0, _, _) or (_, < 0, _) or (_, _, < 0))
+            if (tuple is ( < 0, _, _) or (_, < 0, _) or (_, _, < 0))
             {
                 Debug.WriteLine($"Warning: vector being divided by tuple with 0 in it. {tuple}");
             }
 
             return new(
-                l.X / tuple.v1 == 0 ? 1 : tuple.v1, 
-                l.Y / tuple.v2 == 0 ? 1 : tuple.v2, 
+                l.X / tuple.v1 == 0 ? 1 : tuple.v1,
+                l.Y / tuple.v2 == 0 ? 1 : tuple.v2,
                 l.Z / tuple.v3 == 0 ? 1 : tuple.v3);
         }
 
@@ -142,7 +142,7 @@ namespace ChungusEngine.Vector
 
         public static (float, float, float) AsTuple(Vec3 vec)
         {
-            return (vec.X,  vec.Y, vec.Z);
+            return (vec.X, vec.Y, vec.Z);
         }
 
         public override string ToString()

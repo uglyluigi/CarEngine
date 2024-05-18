@@ -1,5 +1,6 @@
 #version 330
 
+in vec3 vColor;
 
 void main() {
 	// Color faces based on their directions
