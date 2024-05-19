@@ -3,6 +3,7 @@ using ChungusEngine.Vector;
 using OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Diagnostics;
 using AssMesh = Assimp.Mesh;
 
 namespace ChungusEngine
@@ -66,6 +67,7 @@ namespace ChungusEngine
             {
                 ProcessNode(child, scene);
             }
+
         }
 
         private Mesh ProcessMesh(AssMesh mesh, Scene scene)
@@ -119,7 +121,7 @@ namespace ChungusEngine
 
             for (int i = 0; i < material.GetMaterialTextureCount(type); i++)
             {
-                TextureSlot slot = new();
+                TextureSlot slot;
                 material.GetMaterialTexture(type, i, out slot);
                 textures.Add(new Texture(TextureFromFile(slot.FilePath, directory), slot.TextureType, slot.FilePath));
             }
@@ -131,29 +133,40 @@ namespace ChungusEngine
         uint TextureFromFile(string path, string directory)
         {
             string filename = $"{directory}/{path}";
-            uint textureId = Gl.GenTexture();
 
-            using (Image<Rgba32> image = SixLabors.ImageSharp.Image.Load<Rgba32>(filename))
+            if (TextureCache.Cache.TryGetValue(filename, out uint value))
             {
-                Gl.BindTexture(TextureTarget.Texture2d, textureId);
-                // fixme probably some problems here because i dont know how to map the
-                // formats available in ImageSharp and OpenGL
-                Rgba32[] texPix = new Rgba32[image.Width * image.Height];
-                image.CopyPixelDataTo(texPix);
-                uint[] transformedData = TransformRgba32ToSbyteArray(texPix);
+                Debug.WriteLine($"Texture cache hit for {filename}");
+                return value;
+            } else
+            {
+                Debug.WriteLine($"Texture cache miss for {filename}");
 
-                Gl.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedInt8888, transformedData);
-                Gl.GenerateMipmap(TextureTarget.Texture2d);
-                Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapS, (nint)TexParamValues.GL_REPEAT);
-                Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapT, (nint)TexParamValues.GL_REPEAT);
-                Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, (nint)TexParamValues.GL_LINEAR_MIPMAP_LINEAR);
-                Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, (nint)TexParamValues.GL_LINEAR);
+                uint textureId = Gl.GenTexture();
+
+                using (Image<Rgba32> image = SixLabors.ImageSharp.Image.Load<Rgba32>(filename))
+                {
+                    Gl.BindTexture(TextureTarget.Texture2d, textureId);
+                    // fixme probably some problems here because i dont know how to map the
+                    // formats available in ImageSharp and OpenGL
+                    Rgba32[] texPix = new Rgba32[image.Width * image.Height];
+                    image.CopyPixelDataTo(texPix);
+                    uint[] transformedData = TransformRgba32ToPackedUintArray(texPix);
+
+                    Gl.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedInt8888, transformedData);
+                    Gl.GenerateMipmap(TextureTarget.Texture2d);
+                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapS, (nint)TexParamValues.GL_REPEAT);
+                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapT, (nint)TexParamValues.GL_REPEAT);
+                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, (nint)TexParamValues.GL_LINEAR_MIPMAP_LINEAR);
+                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, (nint)TexParamValues.GL_LINEAR);
+                }
+
+                TextureCache.Cache.Add(filename, textureId);
+                return textureId;
             }
-
-            return textureId;
         }
 
-        private static uint[] TransformRgba32ToSbyteArray(Rgba32[] texPix)
+        private static uint[] TransformRgba32ToPackedUintArray(Rgba32[] texPix)
         {
             var adjustedLength = texPix.Length;
             uint[] transformedData = new uint[adjustedLength];

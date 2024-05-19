@@ -35,9 +35,13 @@ namespace ChungusEngine
 
         private static (float X, float Y) MouseDelta = new();
         private static Point PrevCursorPos = Cursor.Position;
+        private bool CareAboutMouseDelta = false;
 
 
-        private static List<SimpleModel> ModelList = new();
+        private static List<SimpleModel> ModelList = [];
+        private readonly MouseEventMessageFilter filter = new();
+
+        private readonly Model BackpackModel = new Model("models/backpack/backpack.obj");
 
 
         /// <summary>
@@ -49,11 +53,6 @@ namespace ChungusEngine
             KeyDown += new(Form1_KeyDown);
             KeyUp += new(Form1_KeyUp);
 
-            MouseEventMessageFilter filter = new();
-            filter.TheMouseMoved += new(TheMouseMoved);
-            Application.AddMessageFilter(filter);
-
-
             InitializeComponent();
         }
 
@@ -62,6 +61,7 @@ namespace ChungusEngine
             Point CursorPos = Cursor.Position;
             MouseDelta = (PrevCursorPos.X - CursorPos.X, PrevCursorPos.Y - CursorPos.Y);
             PrevCursorPos = CursorPos;
+            Camera.UpdateCameraRotation(MouseDelta);
         }
 
         private void CenterMousePosition()
@@ -70,9 +70,6 @@ namespace ChungusEngine
             Cursor.Position = new(X + Width / 2, Y + Height / 2);
         }
 
-
-
-        #region Event Handling
 
         /// <summary>
         /// Allocate GL resources or GL states.
@@ -103,9 +100,11 @@ namespace ChungusEngine
             //Gl.Enable(EnableCap.DepthTest);
             // https://developer.nvidia.com/content/depth-precision-visualized
             Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
-            Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            //Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 
-            ModelList = GetModels();
+            //ModelList = GetModels();
+            //CenterMousePosition();
+            BackpackModel.LoadModel();
         }
 
         private void RenderControl_Render(object sender, GlControlEventArgs e)
@@ -121,10 +120,20 @@ namespace ChungusEngine
             Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Camera.View());
             Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Matrix4x4f.Translated(0.0f, 0.0f, -3.0f) * Camera.Perspective());
 
-            foreach (var Model in ModelList)
+            /*foreach (var Model in ModelList)
             {
                 Model.DrawModel(Program);
-            }
+            }*/
+
+            /*if (!CareAboutMouseDelta)
+            {
+                MouseDelta = (0, 0);
+                filter.TheMouseMoved += new(TheMouseMoved);
+                Application.AddMessageFilter(filter);
+                CareAboutMouseDelta = true;
+            }*/
+
+            BackpackModel.Draw(Program);
         }
 
 
@@ -223,9 +232,5 @@ namespace ChungusEngine
             Console.WriteLine($"{source}, {type}, {severity}: {strMessage}");
             Debug.WriteLine($"{source}, {type}, {severity}: {strMessage}");
         }
-
-        #endregion
-
-
     }
 }

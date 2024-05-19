@@ -1,11 +1,7 @@
 ﻿
 using OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using Quaternion = System.Numerics.Quaternion;
 
 namespace ChungusEngine
@@ -31,5 +27,21 @@ namespace ChungusEngine
                     X, Y, Z, W
                 );
         }
+
+        internal static Quaternion RemoveRoll(Quaternion rotation)
+        {
+            float Pitch = rotation.Y;
+            var CancelPitch = new Quaternion(0.0f, Pitch, 0.0f, 0.0f);
+
+            float Yaw = rotation.X;
+            var CancelYaw = new Quaternion(Yaw, 0.0f, 0.0f, 0.0f);
+            
+            return Quaternion.Normalize(CancelPitch) * Quaternion.Normalize(CancelYaw);
+        }
+    }
+
+    public class TextureCache
+    {
+        public static Dictionary<string, uint> Cache = new();
     }
 }
