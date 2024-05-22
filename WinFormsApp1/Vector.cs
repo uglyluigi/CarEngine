@@ -72,9 +72,14 @@ namespace ChungusEngine.Vector
 
         public float Magnitude { get { return MathF.Sqrt(X * X + Y * Y + Z * Z); } }
 
-        public float Dot(Vec3 r, float theta)
+        public float Dot(Vec3 r)
         {
-            return Magnitude * r.Magnitude * MathF.Cos(theta);
+            return X * r.X + Y * r.Y + Z * r.Z;
+        }
+
+        public float AngleBetween(Vec3 r)
+        {
+            return MathF.Acos(Dot(r) / (Magnitude * r.Magnitude));
         }
 
         public static Vec3 operator +(Vec3 l, Vec3 r)
@@ -119,7 +124,7 @@ namespace ChungusEngine.Vector
 
         public static Vec3 operator /(Vec3 l, (float v1, float v2, float v3) tuple)
         {
-            if (tuple is ( < 0, _, _) or (_, < 0, _) or (_, _, < 0))
+            if (tuple is (0, _, _) or (_, 0, _) or (_, _, 0))
             {
                 Debug.WriteLine($"Warning: vector being divided by tuple with 0 in it. {tuple}");
             }

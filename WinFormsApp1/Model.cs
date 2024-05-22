@@ -5,20 +5,25 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Diagnostics;
 using AssMesh = Assimp.Mesh;
+using Quaternion = System.Numerics.Quaternion;
 
 namespace ChungusEngine
 {
-    public class Model(string modelPath)
+    public class Model(string modelPath, Vec3 position)
     {
         public string ModelPath => modelPath;
-        public List<Mesh> Meshes { get; private set; }
+        public List<Mesh> Meshes { get; private set; } = [];
         public string directory;
+        public Vec3 Position => position;
+        public Quaternion Rotation = Quaternion.Identity;
+        public Matrix4x4f ModelTransform { get { return Matrix4x4f.Identity * Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) * Util.QuatToMatrix(Rotation); } }
 
 
         public void Draw(ShaderProgram program)
         {
-            foreach (Mesh mesh in Meshes)
+            foreach (var mesh in Meshes)
             {
+                Gl.UniformMatrix4f(program.ModelMatrix, 1, false, ModelTransform);
                 mesh.Draw(program);
             }
         }
@@ -53,15 +58,11 @@ namespace ChungusEngine
 
         private void ProcessNode(Node node, Scene scene)
         {
-            var meshList = new List<Mesh>();
-
             for (int i = 0; i < node.MeshCount; i++)
             {
                 var mesh = scene.Meshes[node.MeshIndices[i]];
-                meshList.Add(ProcessMesh(mesh, scene));
+                Meshes.Add(ProcessMesh(mesh, scene));
             }
-
-            Meshes = meshList;
 
             foreach (var child in node.Children)
             {

@@ -1,4 +1,5 @@
-﻿using Khronos;
+﻿using ChungusEngine.Vector;
+using Khronos;
 using OpenGL;
 using System.Diagnostics;
 using System.Numerics;
@@ -33,7 +34,6 @@ namespace ChungusEngine
 
         private static ShaderProgram Program;
 
-        private static (float X, float Y) MouseDelta = new();
         private static Point PrevCursorPos = Cursor.Position;
         private bool CareAboutMouseDelta = false;
 
@@ -41,7 +41,7 @@ namespace ChungusEngine
         private static List<SimpleModel> ModelList = [];
         private readonly MouseEventMessageFilter filter = new();
 
-        private readonly Model BackpackModel = new Model("models/backpack/backpack.obj");
+        private readonly Model BackpackModel = new Model("models/cube.obj", new(0.0f, 0.0f, -10.0f));
 
 
         /// <summary>
@@ -58,10 +58,9 @@ namespace ChungusEngine
 
         private void TheMouseMoved()
         {
-            Point CursorPos = Cursor.Position;
-            MouseDelta = (PrevCursorPos.X - CursorPos.X, PrevCursorPos.Y - CursorPos.Y);
-            PrevCursorPos = CursorPos;
-            Camera.UpdateCameraRotation(MouseDelta);
+            var (X, Y) = (Location.X, Location.Y);
+            //Camera.UpdateCameraRotation(Cursor.Position, PrevCursorPos, new(X + Width / 2, Y + Height / 2));
+            PrevCursorPos = Cursor.Position;
         }
 
         private void CenterMousePosition()
@@ -100,16 +99,19 @@ namespace ChungusEngine
             //Gl.Enable(EnableCap.DepthTest);
             // https://developer.nvidia.com/content/depth-precision-visualized
             Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
-            //Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 
             //ModelList = GetModels();
             //CenterMousePosition();
             BackpackModel.LoadModel();
         }
 
+        private float CubeTheta = 0.0f;
+
         private void RenderControl_Render(object sender, GlControlEventArgs e)
         {
             Control senderControl = (Control)sender;
+
 
             Gl.Viewport(0, 0, senderControl.ClientSize.Width, senderControl.ClientSize.Height);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -118,21 +120,17 @@ namespace ChungusEngine
             // Set uniform state
 
             Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Camera.View());
-            Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Matrix4x4f.Translated(0.0f, 0.0f, -3.0f) * Camera.Perspective());
+            Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Matrix4x4f.Translated(0.0f, -1.0f, -5.0f) * Camera.Perspective());
+            //Gl.UniformMatrix4f(Program.ModelMatrix, 1, false, Matrix4x4f.Identity * Matrix4x4f.Scaled(0.6f, 0.6f, 0.6f));
+            CubeTheta += 0.1f;
 
             /*foreach (var Model in ModelList)
             {
                 Model.DrawModel(Program);
             }*/
 
-            /*if (!CareAboutMouseDelta)
-            {
-                MouseDelta = (0, 0);
-                filter.TheMouseMoved += new(TheMouseMoved);
-                Application.AddMessageFilter(filter);
-                CareAboutMouseDelta = true;
-            }*/
-
+            filter.TheMouseMoved += new(TheMouseMoved);
+            Application.AddMessageFilter(filter);
             BackpackModel.Draw(Program);
         }
 

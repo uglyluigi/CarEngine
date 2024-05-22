@@ -18,7 +18,7 @@ namespace ChungusEngine
 
         public Matrix4x4f Perspective()
         {
-            return Util.QuatToMatrix(Rotation) * Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 5.0f);
+            return Util.QuatToMatrix(Rotation) * Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 50.0f);
         }
 
         public void UpdateCameraRotation((float X, float Y) mouseDelta)
