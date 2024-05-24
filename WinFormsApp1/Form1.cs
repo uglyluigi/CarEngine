@@ -8,6 +8,11 @@ using Quaternion = System.Numerics.Quaternion;
 
 namespace ChungusEngine
 {
+    public enum _Direction
+    {
+        UP,
+        DOWN
+    }
 
     public delegate void MouseMovedEvent();
 
@@ -42,6 +47,7 @@ namespace ChungusEngine
         private readonly MouseEventMessageFilter filter = new();
 
         private readonly Model BackpackModel = new Model("models/cube.obj", new(0.0f, 0.0f, -10.0f));
+        private readonly Model BackpackModel2 = new Model("models/cube.obj", new(0.0f, 5.0f, -10.0f));
 
 
         /// <summary>
@@ -99,11 +105,12 @@ namespace ChungusEngine
             //Gl.Enable(EnableCap.DepthTest);
             // https://developer.nvidia.com/content/depth-precision-visualized
             Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
-            Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            //Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 
             //ModelList = GetModels();
             //CenterMousePosition();
             BackpackModel.LoadModel();
+            BackpackModel2.LoadModel();
         }
 
         private float CubeTheta = 0.0f;
@@ -132,6 +139,7 @@ namespace ChungusEngine
             filter.TheMouseMoved += new(TheMouseMoved);
             Application.AddMessageFilter(filter);
             BackpackModel.Draw(Program);
+            BackpackModel2.Draw(Program);
         }
 
 
@@ -210,11 +218,18 @@ namespace ChungusEngine
 
         private void Form1_KeyDown(object? sender, KeyEventArgs e)
         {
-
+            if (e.KeyCode is Keys.W or Keys.A or Keys.S or Keys.D)
+            {
+                Camera.HandleKeyboardInput(e, _Direction.DOWN);
+            }
         }
 
         private void Form1_KeyUp(object? sender, KeyEventArgs e)
         {
+            if (e.KeyCode is Keys.W or Keys.A or Keys.S or Keys.D)
+            {
+                Camera.HandleKeyboardInput(e, _Direction.UP);
+            }
         }
 
         private static void GLDebugProc(DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)

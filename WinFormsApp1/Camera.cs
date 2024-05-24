@@ -7,6 +7,9 @@ namespace ChungusEngine
 {
     public class Camera
     {
+        private Vector3 Acceleration = new();
+        private Vector3 Velocity = new();
+
         public Quaternion Rotation { get; set; }
 
         public Vec3 Position { get; set; }
@@ -39,9 +42,27 @@ namespace ChungusEngine
             Rotation *= xAxis * yAxis;
         }
 
-        public void UpdateCameraPosition(float dx, float dy, float dz)
+        public void UpdateCameraPosition(float dx, float dy, float dz, long dt)
         {
             Position += (dx, dy, dz);
+        }
+
+        internal void HandleKeyboardInput(KeyEventArgs e, _Direction dir)
+        {
+            var code = e.KeyCode;
+
+            switch (code)
+            {
+                case Keys.W:
+
+                    break;
+                case Keys.A:
+                    break;
+                case Keys.S:
+                    break;
+                case Keys.D:
+                    break;
+            }
         }
 
         internal Camera()
