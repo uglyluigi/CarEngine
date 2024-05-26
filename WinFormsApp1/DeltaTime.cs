@@ -9,7 +9,7 @@ namespace ChungusEngine
     internal class DeltaTime
     {
         // The previous system time a frame was rendered.
-        private static float PrevDeltaTime = 0;
+        private static DateTime TimeSinceLastDt = DateTime.Now;
 
         /**
          * With respect to the above comment,
@@ -33,15 +33,10 @@ namespace ChungusEngine
          */
         public static float Dt()
         {
-            var CurrentTime = GetSystemTime() / 1000.0f;
-            var Dt = CurrentTime - PrevDeltaTime;
-            PrevDeltaTime = CurrentTime;
+            var CurrentTime = DateTime.Now;
+            var Dt = CurrentTime.Ticks - TimeSinceLastDt.Ticks;
+            TimeSinceLastDt = CurrentTime;
             return Dt;
-        }
-
-        private static long GetSystemTime()
-        {
-            return DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
     }
 }

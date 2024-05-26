@@ -48,6 +48,7 @@ namespace ChungusEngine
 
         private readonly Model BackpackModel = new Model("models/cube.obj", new(0.0f, 0.0f, -10.0f));
         private readonly Model BackpackModel2 = new Model("models/cube.obj", new(0.0f, 5.0f, -10.0f));
+        private static bool ItDoBeRotating = false;
 
 
         /// <summary>
@@ -63,18 +64,8 @@ namespace ChungusEngine
         }
 
         private void TheMouseMoved()
-        {
-            var (X, Y) = (Location.X, Location.Y);
-            //Camera.UpdateCameraRotation(Cursor.Position, PrevCursorPos, new(X + Width / 2, Y + Height / 2));
-            PrevCursorPos = Cursor.Position;
+        { 
         }
-
-        private void CenterMousePosition()
-        {
-            var (X, Y) = (Location.X, Location.Y);
-            Cursor.Position = new(X + Width / 2, Y + Height / 2);
-        }
-
 
         /// <summary>
         /// Allocate GL resources or GL states.
@@ -113,8 +104,6 @@ namespace ChungusEngine
             BackpackModel2.LoadModel();
         }
 
-        private float CubeTheta = 0.0f;
-
         private void RenderControl_Render(object sender, GlControlEventArgs e)
         {
             Control senderControl = (Control)sender;
@@ -128,18 +117,19 @@ namespace ChungusEngine
 
             Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Camera.View());
             Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Matrix4x4f.Translated(0.0f, -1.0f, -5.0f) * Camera.Perspective());
-            //Gl.UniformMatrix4f(Program.ModelMatrix, 1, false, Matrix4x4f.Identity * Matrix4x4f.Scaled(0.6f, 0.6f, 0.6f));
-            CubeTheta += 0.1f;
-
-            /*foreach (var Model in ModelList)
-            {
-                Model.DrawModel(Program);
-            }*/
 
             filter.TheMouseMoved += new(TheMouseMoved);
             Application.AddMessageFilter(filter);
+
+            
             BackpackModel.Draw(Program);
             BackpackModel2.Draw(Program);
+
+            if (ItDoBeRotating)
+            {
+                BackpackModel.Rotation = Quaternion.Normalize(Quaternion.Slerp(Quaternion.Normalize(BackpackModel.Rotation), Quaternion.Normalize(-BackpackModel.Rotation * Util.J), 0.05f));
+                Debug.WriteLine(BackpackModel.Rotation.ToString());
+            }
         }
 
 
@@ -221,6 +211,9 @@ namespace ChungusEngine
             if (e.KeyCode is Keys.W or Keys.A or Keys.S or Keys.D)
             {
                 Camera.HandleKeyboardInput(e, _Direction.DOWN);
+            } else if (e.KeyCode is Keys.Space)
+            {
+                ItDoBeRotating = true;
             }
         }
 
@@ -229,6 +222,9 @@ namespace ChungusEngine
             if (e.KeyCode is Keys.W or Keys.A or Keys.S or Keys.D)
             {
                 Camera.HandleKeyboardInput(e, _Direction.UP);
+            } else if (e.KeyCode is Keys.Space)
+            {
+                ItDoBeRotating = false;
             }
         }
 

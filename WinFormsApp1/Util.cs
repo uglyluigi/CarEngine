@@ -8,6 +8,10 @@ namespace ChungusEngine
 {
     public class Util
     {
+        public static readonly Quaternion I = new Quaternion(1.0f, 0.0f, 0.0f, 1.0f);
+        public static readonly Quaternion J = new Quaternion(0.0f, 1.0f, 0.0f, 1.0f);
+        public static readonly Quaternion K = new Quaternion(0.0f, 0.0f, 1.0f, 1.0f);
+
         public static Matrix4x4f QuatToMatrix(Quaternion quat)
         {
             var (X, Y, Z, W) = (quat.X, quat.Y, quat.Z, quat.W);

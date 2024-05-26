@@ -16,7 +16,7 @@ namespace ChungusEngine
         public string directory;
         public Vec3 Position => position;
         public Quaternion Rotation = Quaternion.Identity;
-        public Matrix4x4f ModelTransform { get { return Matrix4x4f.Identity * Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) * Util.QuatToMatrix(Rotation); } }
+        public Matrix4x4f ModelTransform { get { return Matrix4x4f.Identity * Util.QuatToMatrix(Rotation) * Matrix4x4f.Translated(Position.X, Position.Y, Position.Z); } }
 
 
         public void Draw(ShaderProgram program)
