@@ -21,7 +21,7 @@ namespace ChungusEngine
 
         public Matrix4x4f Perspective()
         {
-            return Util.QuatToMatrix(Rotation) * Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 50.0f);
+            return Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) * Util.QuatToMatrix(Rotation) * Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 50.0f);
         }
 
         public void UpdateCameraRotation((float X, float Y) mouseDelta)
@@ -50,17 +50,21 @@ namespace ChungusEngine
         internal void HandleKeyboardInput(KeyEventArgs e, _Direction dir)
         {
             var code = e.KeyCode;
+            var moveFactor = 0.01f;
 
             switch (code)
             {
                 case Keys.W:
-
+                    UpdateCameraPosition(moveFactor, 0.0f, 0.0f, 0l);
                     break;
                 case Keys.A:
+                    UpdateCameraPosition(-moveFactor, 0.0f, 0.0f, 0l);
                     break;
                 case Keys.S:
+                    UpdateCameraPosition(0.0f, moveFactor, 0.0f, 0l);
                     break;
                 case Keys.D:
+                    UpdateCameraPosition(0.0f, -moveFactor, 0.0f, 0l);
                     break;
             }
         }

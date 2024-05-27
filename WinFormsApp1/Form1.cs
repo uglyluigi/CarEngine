@@ -127,7 +127,8 @@ namespace ChungusEngine
 
             if (ItDoBeRotating)
             {
-                BackpackModel.Rotation = Quaternion.Normalize(Quaternion.Slerp(Quaternion.Normalize(BackpackModel.Rotation), Quaternion.Normalize(-BackpackModel.Rotation * Util.J), 0.05f));
+                BackpackModel.Rotation = Quaternion.Normalize(Quaternion.Slerp(BackpackModel.Rotation, -BackpackModel.Rotation * Util.J, 0.05f));
+                BackpackModel2.Rotation = Quaternion.Normalize(Quaternion.Slerp(BackpackModel2.Rotation, -BackpackModel2.Rotation * Util.K, 0.05f));
                 Debug.WriteLine(BackpackModel.Rotation.ToString());
             }
         }

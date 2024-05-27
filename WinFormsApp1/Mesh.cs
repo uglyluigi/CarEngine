@@ -70,11 +70,17 @@ namespace ChungusEngine
 
             // Expose vertex normal to shader program
             Gl.EnableVertexAttribArray(1);
-            Gl.VertexAttribPointer(1, 3, VertexAttribType.Float, false, VERTEX_SIZE, 12);
+            Gl.VertexAttribPointer(1, 3, VertexAttribType.Float, false, VERTEX_SIZE, 24);
 
             // Expose tex coordinates to shader program
             Gl.EnableVertexAttribArray(2);
-            Gl.VertexAttribPointer(2, 2, VertexAttribType.Float, false, VERTEX_SIZE, 24);
+            Gl.VertexAttribPointer(2, 2, VertexAttribType.Float, false, VERTEX_SIZE, 48);
+
+/*            Gl.EnableVertexAttribArray(3);
+            Gl.VertexAttribPointer(3, 3, VertexAttribType.Float, false, VERTEX_SIZE, Marshal.OffsetOf<Vertex>(nameof(Vertex.Tangent)));
+
+            Gl.EnableVertexAttribArray(4);
+            Gl.VertexAttribPointer(4, 3, VertexAttribType.Float, false, VERTEX_SIZE, Marshal.OffsetOf<Vertex>(nameof(Vertex.Bitangent)));*/
 
             Gl.BindVertexArray(0);
         }
