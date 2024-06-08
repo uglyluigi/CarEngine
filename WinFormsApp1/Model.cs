@@ -24,6 +24,8 @@ namespace ChungusEngine
             foreach (var mesh in Meshes)
             {
                 Gl.UniformMatrix4f(program.ModelMatrix, 1, false, ModelTransform);
+                Gl.BindTexture(TextureTarget.Texture2d, mesh.Textures[0].Id);
+
                 mesh.Draw(program);
             }
         }

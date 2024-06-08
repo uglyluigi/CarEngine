@@ -39,16 +39,10 @@ namespace ChungusEngine
 
         private static ShaderProgram Program;
 
-        private static Point PrevCursorPos = Cursor.Position;
-        private bool CareAboutMouseDelta = false;
-
-
-        private static List<SimpleModel> ModelList = [];
-        private readonly MouseEventMessageFilter filter = new();
-
-        private readonly Model BackpackModel = new Model("models/cube.obj", new(0.0f, 0.0f, -10.0f));
-        private readonly Model BackpackModel2 = new Model("models/cube.obj", new(0.0f, 5.0f, -10.0f));
+        private readonly Model BackpackModel = new Model("models/bobleponge/cube.obj", new(0.0f, 0.0f, -10.0f));
         private static bool ItDoBeRotating = false;
+
+        private static MouseEventMessageFilter MouseFilter = new();
 
 
         /// <summary>
@@ -60,11 +54,21 @@ namespace ChungusEngine
             KeyDown += new(Form1_KeyDown);
             KeyUp += new(Form1_KeyUp);
 
+            MouseFilter.TheMouseMoved += TheMouseMoved;
+            Application.AddMessageFilter(MouseFilter);
+
             InitializeComponent();
         }
 
         private void TheMouseMoved()
-        { 
+        {
+            var CursorPos = Cursor.Position;
+            var WindowRectangle = RectangleToScreen(ClientRectangle);
+            var Vec = new Vector2(CursorPos.X + 8 - WindowRectangle.X - Width / 2, CursorPos.Y - WindowRectangle.Y + 31 - Height / 2);
+            Camera.UpdateBingusRotation(Vec);
+            var (X_N, Y_N) = (Location.X, Location.Y);
+            Cursor.Position = new(X_N + Width / 2, Y_N + Height / 2);
+
         }
 
         /// <summary>
@@ -101,7 +105,7 @@ namespace ChungusEngine
             //ModelList = GetModels();
             //CenterMousePosition();
             BackpackModel.LoadModel();
-            BackpackModel2.LoadModel();
+            //BackpackModel2.LoadModel();
         }
 
         private void RenderControl_Render(object sender, GlControlEventArgs e)
@@ -117,18 +121,12 @@ namespace ChungusEngine
 
             Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Camera.View());
             Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Matrix4x4f.Translated(0.0f, -1.0f, -5.0f) * Camera.Perspective());
-
-            filter.TheMouseMoved += new(TheMouseMoved);
-            Application.AddMessageFilter(filter);
-
             
             BackpackModel.Draw(Program);
-            BackpackModel2.Draw(Program);
-
+ 
             if (ItDoBeRotating)
             {
                 BackpackModel.Rotation = Quaternion.Normalize(Quaternion.Slerp(BackpackModel.Rotation, -BackpackModel.Rotation * Util.J, 0.05f));
-                BackpackModel2.Rotation = Quaternion.Normalize(Quaternion.Slerp(BackpackModel2.Rotation, -BackpackModel2.Rotation * Util.K, 0.05f));
                 Debug.WriteLine(BackpackModel.Rotation.ToString());
             }
         }

@@ -1,5 +1,6 @@
 ﻿using ChungusEngine.Vector;
 using OpenGL;
+using System.Diagnostics;
 using System.Numerics;
 using Quaternion = System.Numerics.Quaternion;
 
@@ -21,7 +22,7 @@ namespace ChungusEngine
 
         public Matrix4x4f Perspective()
         {
-            return Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) * Util.QuatToMatrix(Rotation) * Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 50.0f);
+            return Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) * Util.QuatToMatrix2(Rotation) * Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 50.0f);
         }
 
         public void UpdateCameraRotation((float X, float Y) mouseDelta)
@@ -40,6 +41,16 @@ namespace ChungusEngine
             var yAxis = Quaternion.CreateFromAxisAngle(new Vector3(0.0f, 1.0f, 0.0f), -mouseDelta.X * sensitivity);
 
             Rotation *= xAxis * yAxis;
+        }
+
+        public void UpdateBingusRotation(Vector2 MouseVector)
+        {
+            Debug.WriteLine(MouseVector);
+            float sensitivity = 0.0005f;
+            var XRotation = Quaternion.CreateFromAxisAngle(new Vector3(1.0f, 0.0f, 0.0f), MouseVector.Y * sensitivity);
+            var YRotation = Quaternion.CreateFromAxisAngle(new Vector3(0.0f, 1.0f, 0.0f), MouseVector.X * sensitivity);
+
+            Rotation *= XRotation * YRotation;
         }
 
         public void UpdateCameraPosition(float dx, float dy, float dz, long dt)

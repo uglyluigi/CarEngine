@@ -32,6 +32,26 @@ namespace ChungusEngine
                 );
         }
 
+        public static Matrix4x4f QuatToMatrix2(Quaternion quat)
+        {
+            var (X, Y, Z, W) = (quat.X, quat.Y, 0, quat.W);
+
+            return
+                new Matrix4x4f(
+                    W, Z, -Y, X,
+                    -Z, W, X, Y,
+                    Y, -X, W, Z,
+                    -X, -Y, -Z, W
+                )
+                *
+                new Matrix4x4f(
+                    W, Z, -Y, -X,
+                    -Z, W, X, -Y,
+                    Y, -X, W, -Z,
+                    X, Y, Z, W
+                );
+        }
+
         internal static Quaternion RemoveRoll(Quaternion rotation)
         {
             float Pitch = rotation.Y;
