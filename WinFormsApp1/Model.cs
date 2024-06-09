@@ -1,20 +1,20 @@
 ﻿using Assimp;
-using ChungusEngine.Vector;
 using OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Diagnostics;
+using System.Numerics;
 using AssMesh = Assimp.Mesh;
 using Quaternion = System.Numerics.Quaternion;
 
 namespace ChungusEngine
 {
-    public class Model(string modelPath, Vec3 position)
+    public class Model(string modelPath, Vector3 position)
     {
         public string ModelPath => modelPath;
         public List<Mesh> Meshes { get; private set; } = [];
         public string directory;
-        public Vec3 Position => position;
+        public Vector3 Position => position;
         public Quaternion Rotation = Quaternion.Identity;
         public Matrix4x4f ModelTransform { get { return Matrix4x4f.Identity * Util.QuatToMatrix(Rotation) * Matrix4x4f.Translated(Position.X, Position.Y, Position.Z); } }
 
@@ -25,6 +25,7 @@ namespace ChungusEngine
             {
                 Gl.UniformMatrix4f(program.ModelMatrix, 1, false, ModelTransform);
                 Gl.BindTexture(TextureTarget.Texture2d, mesh.Textures[0].Id);
+                Gl.ActiveTexture(TextureUnit.Texture0);
 
                 mesh.Draw(program);
             }
@@ -82,17 +83,17 @@ namespace ChungusEngine
             for (int i = 0; i < mesh.Vertices.Count; i++)
             {
                 var _vert = mesh.Vertices[i];
-                Vec3 vert = new(_vert.X, _vert.Y, _vert.Z);
+                Vector3 vert = new(_vert.X, _vert.Y, _vert.Z);
                 var _norm = mesh.Normals[i];
-                Vec3 norm = new(_norm.X, _norm.Y, _norm.Z);
+                Vector3 norm = new(_norm.X, _norm.Y, _norm.Z);
 
-                Vec2 uv = Vec2.Zero;
+                Vector2 uv = Static.Zero2;
 
                 // get the texture coordinates of this vertex, if present
                 if (mesh.HasTextureCoords(i))
                 {
                     var currentTextureCoordinate = mesh.TextureCoordinateChannels[0][i];
-                    uv = new Vec2(currentTextureCoordinate.X, currentTextureCoordinate.Y);
+                    uv = new Vector2(currentTextureCoordinate.X, currentTextureCoordinate.Y);
                 }
 
                 vertices.Add(new Vertex(vert, norm, uv));
@@ -158,10 +159,10 @@ namespace ChungusEngine
 
                     Gl.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedInt8888, transformedData);
                     Gl.GenerateMipmap(TextureTarget.Texture2d);
-                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapS, (nint)TexParamValues.GL_REPEAT);
-                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapT, (nint)TexParamValues.GL_REPEAT);
-                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, (nint)TexParamValues.GL_LINEAR_MIPMAP_LINEAR);
-                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, (nint)TexParamValues.GL_LINEAR);
+                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapS, OpenGL.TextureWrapMode.Repeat);
+                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapT, OpenGL.TextureWrapMode.Repeat);
+                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, TextureMinFilter.Linear);
+                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, TextureMagFilter.Linear);
                 }
 
                 TextureCache.Cache.Add(filename, textureId);

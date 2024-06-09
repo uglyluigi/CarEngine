@@ -1,5 +1,4 @@
-﻿using ChungusEngine.Vector;
-using Khronos;
+﻿using Khronos;
 using OpenGL;
 using System.Diagnostics;
 using System.Numerics;
@@ -64,7 +63,13 @@ namespace ChungusEngine
         {
             var CursorPos = Cursor.Position;
             var WindowRectangle = RectangleToScreen(ClientRectangle);
+            // Some cool magic numbers that I need to add to compensate for some weird
+            // missing space
+            // The 31px makes sense because the top bar is 32px. Not sure where the last one went tho
+            // Anyway this code basically imposes a 2d coordinate plane with its origin centered at
+            // the center of the Forms window. 
             var Vec = new Vector2(CursorPos.X + 8 - WindowRectangle.X - Width / 2, CursorPos.Y - WindowRectangle.Y + 31 - Height / 2);
+            // This updates the bingus rotation based on the mouse vector.
             Camera.UpdateBingusRotation(Vec);
             var (X_N, Y_N) = (Location.X, Location.Y);
             Cursor.Position = new(X_N + Width / 2, Y_N + Height / 2);
@@ -93,19 +98,17 @@ namespace ChungusEngine
 
             Program = new ShaderProgram("shaders/vertex_debug.glsl", "shaders/fragment_debug.glsl");
 
+
             // Uses multisampling, if available
-            if (Gl.CurrentVersion != null && Gl.CurrentVersion.Api == KhronosVersion.ApiGl && glControl.MultisampleBits > 0)
+            if (Gl.CurrentVersion?.Api == KhronosVersion.ApiGl && glControl.MultisampleBits > 0)
                 Gl.Enable(EnableCap.Multisample);
 
-            //Gl.Enable(EnableCap.DepthTest);
             // https://developer.nvidia.com/content/depth-precision-visualized
             Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
+            Gl.Enable(EnableCap.DepthTest);
             //Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 
-            //ModelList = GetModels();
-            //CenterMousePosition();
             BackpackModel.LoadModel();
-            //BackpackModel2.LoadModel();
         }
 
         private void RenderControl_Render(object sender, GlControlEventArgs e)
@@ -207,6 +210,11 @@ namespace ChungusEngine
 
         private void Form1_KeyDown(object? sender, KeyEventArgs e)
         {
+            if (e.KeyCode is Keys.Escape)
+            {
+                Application.Exit();
+            }
+
             if (e.KeyCode is Keys.W or Keys.A or Keys.S or Keys.D)
             {
                 Camera.HandleKeyboardInput(e, _Direction.DOWN);

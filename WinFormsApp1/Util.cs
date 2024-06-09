@@ -2,10 +2,17 @@
 using OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Numerics;
 using Quaternion = System.Numerics.Quaternion;
 
 namespace ChungusEngine
 {
+    public class Static
+    {
+        public static readonly Vector3 Zero3 = new(0.0f, 0.0f, 0.0f);
+        public static readonly Vector2 Zero2 = new(0.0f, 0.0f);
+    }
+
     public class Util
     {
         public static readonly Quaternion I = new Quaternion(1.0f, 0.0f, 0.0f, 1.0f);

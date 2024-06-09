@@ -1,16 +1,17 @@
 ﻿using Assimp;
-using ChungusEngine.Vector;
 using OpenGL;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using Vector3 = System.Numerics.Vector3;
 
 namespace ChungusEngine
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct Vertex(Vec3 position, Vec3 normal, Vec2 uv)
+    public struct Vertex(Vector3 position, Vector3 normal, Vector2 uv)
     {
-        public readonly Vec3 Position => position;
-        public readonly Vec3 Normal => normal;
-        public readonly Vec2 UV => uv;
+        public readonly Vector3 Position => position;
+        public readonly Vector3 Normal => normal;
+        public readonly Vector2 UV => uv;
     }
 
     public struct Texture(uint id, TextureType type, string path)
@@ -18,13 +19,6 @@ namespace ChungusEngine
         public readonly uint Id => id;
         public readonly TextureType Type => type;
         public readonly string Path => path;
-    }
-
-    public enum TexParamValues
-    {
-        GL_REPEAT = 0x2901,
-        GL_LINEAR_MIPMAP_LINEAR = 0x2703,
-        GL_LINEAR = 0x2601
     }
 
     public class Mesh : IDisposable
@@ -57,11 +51,9 @@ namespace ChungusEngine
 
             int VERTEX_SIZE = Marshal.SizeOf(typeof(Vertex));
 
-            // Potential FIXME -> the Learn OpenGL code gives this function a pointer to the first item in the vector.
-            // Does this do the same thing?
             Gl.BufferData(BufferTarget.ArrayBuffer, (uint)(Vertices.Count * VERTEX_SIZE), Vertices.ToArray(), BufferUsage.StaticDraw);
 
-            Gl.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);                                        // same thing here...
+            Gl.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
             Gl.BufferData(BufferTarget.ElementArrayBuffer, (uint)(Indices.Count * sizeof(uint)), Indices.ToArray(), BufferUsage.StaticDraw);
 
             // Expose position vector to shader program
@@ -75,12 +67,6 @@ namespace ChungusEngine
             // Expose tex coordinates to shader program
             Gl.EnableVertexAttribArray(2);
             Gl.VertexAttribPointer(2, 2, VertexAttribType.Float, false, VERTEX_SIZE, 48);
-
-/*            Gl.EnableVertexAttribArray(3);
-            Gl.VertexAttribPointer(3, 3, VertexAttribType.Float, false, VERTEX_SIZE, Marshal.OffsetOf<Vertex>(nameof(Vertex.Tangent)));
-
-            Gl.EnableVertexAttribArray(4);
-            Gl.VertexAttribPointer(4, 3, VertexAttribType.Float, false, VERTEX_SIZE, Marshal.OffsetOf<Vertex>(nameof(Vertex.Bitangent)));*/
 
             Gl.BindVertexArray(0);
         }
