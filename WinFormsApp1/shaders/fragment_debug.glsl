@@ -4,12 +4,8 @@ layout(location = 0) out vec4 Color;
 in vec3 vNormal;
 in vec2 vUV;
 
-uniform sampler2D Tex1;
-uniform sampler2D Tex2;
-uniform sampler2D Tex3;
-
-
+uniform sampler2D Texture0;
 
 void main() {
-	Color = texture(Tex1, vUV);
+	Color = texture(Texture0, vUV);
 }

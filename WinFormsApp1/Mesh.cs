@@ -94,7 +94,7 @@ namespace ChungusEngine
                         break;
                 }
 
-                shader.SetInt($"material.{currentTexture.Type}.{(currentTexture.Type == TextureType.Diffuse ? DiffuseIdx : SpecularIdx)}", i);
+                shader.SetInt($"Texture{i}", i);
                 Gl.BindTexture(TextureTarget.Texture2d, Textures[i].Id);
             }
 

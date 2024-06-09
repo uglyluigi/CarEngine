@@ -106,6 +106,7 @@ namespace ChungusEngine
             // https://developer.nvidia.com/content/depth-precision-visualized
             Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
             Gl.Enable(EnableCap.DepthTest);
+            Gl.DepthFunc(DepthFunction.Always);
             //Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 
             BackpackModel.LoadModel();

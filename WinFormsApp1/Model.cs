@@ -1,7 +1,6 @@
 ﻿using Assimp;
 using OpenGL;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+using StbImageSharp;
 using System.Diagnostics;
 using System.Numerics;
 using AssMesh = Assimp.Mesh;
@@ -24,8 +23,6 @@ namespace ChungusEngine
             foreach (var mesh in Meshes)
             {
                 Gl.UniformMatrix4f(program.ModelMatrix, 1, false, ModelTransform);
-                Gl.BindTexture(TextureTarget.Texture2d, mesh.Textures[0].Id);
-                Gl.ActiveTexture(TextureUnit.Texture0);
 
                 mesh.Draw(program);
             }
@@ -148,41 +145,23 @@ namespace ChungusEngine
 
                 uint textureId = Gl.GenTexture();
 
-                using (Image<Rgba32> image = SixLabors.ImageSharp.Image.Load<Rgba32>(filename))
+                using (var stream = File.OpenRead(filename))
                 {
-                    Gl.BindTexture(TextureTarget.Texture2d, textureId);
-                    // fixme probably some problems here because i dont know how to map the
-                    // formats available in ImageSharp and OpenGL
-                    Rgba32[] texPix = new Rgba32[image.Width * image.Height];
-                    image.CopyPixelDataTo(texPix);
-                    uint[] transformedData = TransformRgba32ToPackedUintArray(texPix);
+                    ImageResult result = ImageResult.FromStream(stream);
+                    byte[] data = result.Data;
 
-                    Gl.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedInt8888, transformedData);
+                    Gl.BindTexture(TextureTarget.Texture2d, textureId);
+                    Gl.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgb, result.Width, result.Height, 0, PixelFormat.Rgb, PixelType.UnsignedByte, data);
                     Gl.GenerateMipmap(TextureTarget.Texture2d);
                     Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapS, OpenGL.TextureWrapMode.Repeat);
                     Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapT, OpenGL.TextureWrapMode.Repeat);
-                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, TextureMinFilter.Linear);
+                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, TextureMinFilter.LinearMipmapLinear);
                     Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, TextureMagFilter.Linear);
                 }
 
                 TextureCache.Cache.Add(filename, textureId);
                 return textureId;
             }
-        }
-
-        private static uint[] TransformRgba32ToPackedUintArray(Rgba32[] texPix)
-        {
-            var adjustedLength = texPix.Length;
-            uint[] transformedData = new uint[adjustedLength];
-
-            for (int i = 0; i < adjustedLength; i++)
-            {
-                var pixel = texPix[i];
-
-                transformedData[i] = BitConverter.ToUInt32([pixel.R, pixel.G, pixel.B, pixel.A], 0);
-            }
-
-            return transformedData;
         }
     }
 }
