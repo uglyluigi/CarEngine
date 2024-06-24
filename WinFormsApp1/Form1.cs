@@ -38,7 +38,7 @@ namespace ChungusEngine
 
         private static ShaderProgram Program;
 
-        private readonly Model BackpackModel = new Model("models/bobleponge/cube.obj", new(0.0f, 0.0f, -10.0f));
+        private readonly Model BackpackModel = new Model("models/backpack/backpack.obj", new(0.0f, 0.0f, -10.0f));
         private static bool ItDoBeRotating = false;
 
         private static MouseEventMessageFilter MouseFilter = new();
@@ -104,10 +104,18 @@ namespace ChungusEngine
                 Gl.Enable(EnableCap.Multisample);
 
             // https://developer.nvidia.com/content/depth-precision-visualized
-            Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
-            Gl.Enable(EnableCap.DepthTest);
-            Gl.DepthFunc(DepthFunction.Always);
+            //Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
+
+            //Gl.DepthFunc(DepthFunction.Equal);
+            //Gl.Enable(EnableCap.Blend);
+            //Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             //Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            Gl.Enable(EnableCap.DepthTest);
+            Gl.DepthFunc(DepthFunction.Less);
+            Gl.DepthMask(true);
+
+            StbImageSharp.StbImage.stbi_set_flip_vertically_on_load(1);
+            StbImageSharp.StbImage.stbi_set_flip_vertically_on_load_thread(1);
 
             BackpackModel.LoadModel();
         }

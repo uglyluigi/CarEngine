@@ -37,7 +37,7 @@
             this.RenderControl.AnimationTimer = false;
             this.RenderControl.BackColor = System.Drawing.Color.DimGray;
             this.RenderControl.ColorBits = ((uint)(24u));
-            this.RenderControl.DepthBits = ((uint)(0u));
+            this.RenderControl.DepthBits = ((uint)(24u));
             this.RenderControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.RenderControl.Location = new System.Drawing.Point(0, 0);
             this.RenderControl.MultisampleBits = ((uint)(0u));

@@ -62,11 +62,11 @@ namespace ChungusEngine
 
             // Expose vertex normal to shader program
             Gl.EnableVertexAttribArray(1);
-            Gl.VertexAttribPointer(1, 3, VertexAttribType.Float, false, VERTEX_SIZE, 24);
+            Gl.VertexAttribPointer(1, 3, VertexAttribType.Float, false, VERTEX_SIZE, 12);
 
             // Expose tex coordinates to shader program
             Gl.EnableVertexAttribArray(2);
-            Gl.VertexAttribPointer(2, 2, VertexAttribType.Float, false, VERTEX_SIZE, 48);
+            Gl.VertexAttribPointer(2, 2, VertexAttribType.Float, false, VERTEX_SIZE, 24);
 
             Gl.BindVertexArray(0);
         }
@@ -75,6 +75,10 @@ namespace ChungusEngine
         {
             uint DiffuseIdx = 1;
             uint SpecularIdx = 1;
+            uint NormalIdx = 1;
+            uint HeightIdx = 1;
+
+            string number = "";
 
             for (int i = 0; i < Textures.Count; i++)
             {
@@ -87,22 +91,33 @@ namespace ChungusEngine
                 switch (currentTexture.Type)
                 {
                     case TextureType.Diffuse:
+                        number = DiffuseIdx.ToString();
                         DiffuseIdx++;
                         break;
                     case TextureType.Specular:
+                        number = SpecularIdx.ToString();
                         SpecularIdx++;
+                        break;
+                    case TextureType.Normals:
+                        number = NormalIdx.ToString();
+                        NormalIdx++;
+                        break;
+                    case TextureType.Height:
+                        number = HeightIdx.ToString();
+                        HeightIdx++;
                         break;
                 }
 
-                shader.SetInt($"Texture{i}", i);
+
+                Gl.Uniform1i(Gl.GetUniformLocation(shader.id, $"texture_{currentTexture.Type.ToString().ToLower()}{number}"), 1, i);
                 Gl.BindTexture(TextureTarget.Texture2d, Textures[i].Id);
             }
-
-            Gl.ActiveTexture(TextureUnit.Texture0);
 
             Gl.BindVertexArray(VAO);
             Gl.DrawElements(OpenGL.PrimitiveType.Triangles, Indices.Count, DrawElementsType.UnsignedInt, 0);
             Gl.BindVertexArray(0);
+
+            Gl.ActiveTexture(TextureUnit.Texture0);
         }
 
         public void Dispose()

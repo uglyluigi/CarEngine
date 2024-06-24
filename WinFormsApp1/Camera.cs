@@ -12,16 +12,40 @@ namespace ChungusEngine
 
         public Quaternion Rotation { get; set; }
 
-        public Vector3 Position { get; set; }
+        public Vector3 Position = new();
 
         public Matrix4x4f View()
         {
             return Matrix4x4f.Identity;
         }
 
+        private (Vector3 Right, Vector3 Up, Vector3 Forward) DeconstructViewMatrix()
+        {
+            var v = View();
+
+            return (new(v.Column0.x, v.Column0.y, v.Column0.z),
+                    new(v.Column1.x, v.Column1.y, v.Column1.z),
+                    new(v.Column2.x, v.Column2.y, v.Column2.z)
+            );
+        }
+        public Vector3 GetForwardVector()
+        {
+            return DeconstructViewMatrix().Forward;
+        }
+
+        public Vector3 GetRightVector()
+        {
+            return DeconstructViewMatrix().Right;
+        }
+
+        public Vector3 GetUpVector()
+        {
+            return new(0, 1, 0);
+        }
+
         public Matrix4x4f Perspective()
         {
-            return Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) * Util.QuatToMatrix2(Rotation) * Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 50.0f);
+            return Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) * Util.QuatToMatrix2(Rotation) * Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 100.0f);
         }
 
         public void UpdateBingusRotation(Vector2 MouseVector)

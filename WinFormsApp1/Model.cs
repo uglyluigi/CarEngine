@@ -28,7 +28,13 @@ namespace ChungusEngine
             }
         }
 
-        public void LoadModel(PostProcessSteps steps = PostProcessSteps.Triangulate | PostProcessSteps.FlipUVs)
+        public void LoadModel(PostProcessSteps steps = 
+            PostProcessSteps.Triangulate | 
+            PostProcessSteps.FlipUVs | 
+            PostProcessSteps.GenerateSmoothNormals | 
+            PostProcessSteps.CalculateTangentSpace |
+            PostProcessSteps.OptimizeMeshes
+        )
         {
             AssimpContext ctx = new AssimpContext();
             // info on these bit flags
@@ -87,13 +93,14 @@ namespace ChungusEngine
                 Vector2 uv = Static.Zero2;
 
                 // get the texture coordinates of this vertex, if present
-                if (mesh.HasTextureCoords(i))
+                // FIXME some models use the other UV channels
+                if (mesh.HasTextureCoords(0))
                 {
                     var currentTextureCoordinate = mesh.TextureCoordinateChannels[0][i];
-                    uv = new Vector2(currentTextureCoordinate.X, currentTextureCoordinate.Y);
+                    uv = new(currentTextureCoordinate.X, currentTextureCoordinate.Y);
                 }
 
-                vertices.Add(new Vertex(vert, norm, uv));
+                vertices.Add(new(vert, norm, uv));
             }
 
             foreach (var face in mesh.Faces)
@@ -104,14 +111,14 @@ namespace ChungusEngine
                 }
             }
 
-            if (mesh.MaterialIndex >= 0)
-            {
-                var material = scene.Materials[mesh.MaterialIndex];
-                var diffuseMaps = LoadMaterialTextures(material, TextureType.Diffuse);
-                textures.AddRange(diffuseMaps);
-                var specularMaps = LoadMaterialTextures(material, TextureType.Specular);
-                textures.AddRange(specularMaps);
-            }
+            var material = scene.Materials[mesh.MaterialIndex];
+            var diffuseMaps = LoadMaterialTextures(material, TextureType.Diffuse);
+            var specularMaps = LoadMaterialTextures(material, TextureType.Specular);
+            var normalMaps = LoadMaterialTextures(material, TextureType.Normals);
+            var heightMaps = LoadMaterialTextures(material, TextureType.Ambient);
+
+            textures = [..textures, ..diffuseMaps, ..specularMaps, ..normalMaps, ..heightMaps];
+
 
             return new Mesh(vertices, indices, textures);
         }
@@ -124,7 +131,21 @@ namespace ChungusEngine
             {
                 TextureSlot slot;
                 material.GetMaterialTexture(type, i, out slot);
-                textures.Add(new Texture(TextureFromFile(slot.FilePath, directory), slot.TextureType, slot.FilePath));
+
+                Texture textureToAdd;
+
+                if (TextureCache.TexObjCache.TryGetValue(slot.FilePath, out Texture t))
+                {
+                    textureToAdd = t;
+                }
+                else
+                {
+                    Texture tex = new(TextureFromFile(slot.FilePath, directory), type, slot.FilePath);
+                    TextureCache.TexObjCache.Add(slot.FilePath, tex);
+                    textureToAdd = tex;
+                }
+
+                textures.Add(textureToAdd);
             }
 
             return textures;
@@ -147,7 +168,8 @@ namespace ChungusEngine
 
                 using (var stream = File.OpenRead(filename))
                 {
-                    ImageResult result = ImageResult.FromStream(stream);
+                    ImageResult result = ImageResult.FromStream(stream, ColorComponents.RedGreenBlue);
+                    
                     byte[] data = result.Data;
 
                     Gl.BindTexture(TextureTarget.Texture2d, textureId);
