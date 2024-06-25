@@ -7,80 +7,99 @@ namespace ChungusEngine
 {
     public class Camera
     {
-        private Vector3 Acceleration = new();
-        private Vector3 Velocity = new();
 
         public Quaternion Rotation { get; set; }
 
-        public Vector3 Position = new();
+        public Vector3 Position = new(0.0f, 0.0f, -5.0f);
+
+        private Vector3 Scale = Static.Unit3;
+
+        private Matrix4x4f CameraTransform { get { 
+                return Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) 
+                    * Matrix4x4f.Scaled(Scale.X, Scale.Y, Scale.Z) 
+                    * Rotation.ToMat4x4fRemoveRoll();
+        } }
 
         public Matrix4x4f View()
         {
             return Matrix4x4f.Identity;
         }
 
-        private (Vector3 Right, Vector3 Up, Vector3 Forward) DeconstructViewMatrix()
+        public Matrix4x4f Projection()
         {
-            var v = View();
-
-            return (new(v.Column0.x, v.Column0.y, v.Column0.z),
-                    new(v.Column1.x, v.Column1.y, v.Column1.z),
-                    new(v.Column2.x, v.Column2.y, v.Column2.z)
-            );
+            return Perspective();
         }
+
         public Vector3 GetForwardVector()
         {
-            return DeconstructViewMatrix().Forward;
+            var inverse = CameraTransform.Inverse;
+            return new Vector3(inverse.Column2.x, inverse.Column2.y, inverse.Column2.z).Normalize();
         }
 
         public Vector3 GetRightVector()
         {
-            return DeconstructViewMatrix().Right;
+            var v = CameraTransform.Inverse;
+            return new Vector3(v.Column0.x, v.Column0.y, v.Column0.z).Normalize();
         }
 
-        public Vector3 GetUpVector()
+        static Vertex3f Up = new(0.0f, 1.0f, 0.0f);
+
+        public Vertex3f GetUpVector()
         {
-            return new(0, 1, 0);
+            return Up;
         }
 
         public Matrix4x4f Perspective()
         {
-            return Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) * Util.QuatToMatrix2(Rotation) * Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 100.0f);
+            return CameraTransform * Matrix4x4f.Perspective(45.0f, 800.0f / 600.0f, 1.0f, 100.0f);
         }
 
-        public void UpdateBingusRotation(Vector2 MouseVector)
+        public void UpdateCameraRotation(Vector2 MouseVector)
         {
-            Debug.WriteLine(MouseVector);
             float sensitivity = 0.0005f;
-            var XRotation = Quaternion.CreateFromAxisAngle(new Vector3(1.0f, 0.0f, 0.0f), MouseVector.Y * sensitivity);
-            var YRotation = Quaternion.CreateFromAxisAngle(new Vector3(0.0f, 1.0f, 0.0f), MouseVector.X * sensitivity);
-
+            var XRotation = Quaternion.CreateFromAxisAngle(Static.XAxis3, MouseVector.Y * sensitivity);
+            var YRotation = Quaternion.CreateFromAxisAngle(Static.YAxis3, MouseVector.X * sensitivity);
+             
             Rotation *= XRotation * YRotation;
         }
 
-        public void UpdateCameraPosition(float dx, float dy, float dz, long dt)
+        private void MoveForward()
         {
-           
+            Position += GetForwardVector() * Static.XZPlane3;
         }
 
-        internal void HandleKeyboardInput(KeyEventArgs e, _Direction dir)
+        private void MoveBackward()
+        {
+            Position -= GetForwardVector() * Static.XZPlane3;
+        }
+
+        private void MoveRight()
+        {
+            Position += GetRightVector() * Static.XZPlane3;
+        }
+
+        private void MoveLeft()
+        {
+            Position -= GetRightVector() * Static.XZPlane3;
+        }
+
+        internal void HandleKeyboardInput(KeyEventArgs e)
         {
             var code = e.KeyCode;
-            var moveFactor = 0.01f;
 
             switch (code)
             {
                 case Keys.W:
-                    UpdateCameraPosition(moveFactor, 0.0f, 0.0f, 0l);
+                    MoveForward();
                     break;
                 case Keys.A:
-                    UpdateCameraPosition(-moveFactor, 0.0f, 0.0f, 0l);
+                    MoveLeft();
                     break;
                 case Keys.S:
-                    UpdateCameraPosition(0.0f, moveFactor, 0.0f, 0l);
+                    MoveBackward();
                     break;
                 case Keys.D:
-                    UpdateCameraPosition(0.0f, -moveFactor, 0.0f, 0l);
+                    MoveRight();
                     break;
             }
         }

@@ -70,7 +70,7 @@ namespace ChungusEngine
             // the center of the Forms window. 
             var Vec = new Vector2(CursorPos.X + 8 - WindowRectangle.X - Width / 2, CursorPos.Y - WindowRectangle.Y + 31 - Height / 2);
             // This updates the bingus rotation based on the mouse vector.
-            Camera.UpdateBingusRotation(Vec);
+            Camera.UpdateCameraRotation(Vec);
             var (X_N, Y_N) = (Location.X, Location.Y);
             Cursor.Position = new(X_N + Width / 2, Y_N + Height / 2);
 
@@ -118,6 +118,7 @@ namespace ChungusEngine
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load_thread(1);
 
             BackpackModel.LoadModel();
+            DeltaTime.Update();
         }
 
         private void RenderControl_Render(object sender, GlControlEventArgs e)
@@ -132,9 +133,12 @@ namespace ChungusEngine
             // Set uniform state
 
             Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Camera.View());
-            Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Matrix4x4f.Translated(0.0f, -1.0f, -5.0f) * Camera.Perspective());
-            
+            Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Camera.Projection());
+
             BackpackModel.Draw(Program);
+
+            // Update the last time that a frame was rendered
+            DeltaTime.Update();
  
             if (ItDoBeRotating)
             {
@@ -226,7 +230,7 @@ namespace ChungusEngine
 
             if (e.KeyCode is Keys.W or Keys.A or Keys.S or Keys.D)
             {
-                Camera.HandleKeyboardInput(e, _Direction.DOWN);
+                Camera.HandleKeyboardInput(e);
             } else if (e.KeyCode is Keys.Space)
             {
                 ItDoBeRotating = true;
@@ -237,7 +241,7 @@ namespace ChungusEngine
         {
             if (e.KeyCode is Keys.W or Keys.A or Keys.S or Keys.D)
             {
-                Camera.HandleKeyboardInput(e, _Direction.UP);
+                //Camera.HandleKeyboardInput(e);
             } else if (e.KeyCode is Keys.Space)
             {
                 ItDoBeRotating = false;
