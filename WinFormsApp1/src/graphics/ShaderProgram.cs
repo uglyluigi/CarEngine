@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace ChungusEngine
+namespace ChungusEngine.Graphics
 {
     public class ShaderProgram : IDisposable
     {

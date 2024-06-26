@@ -4,8 +4,9 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using ChungusEngine.Graphics;
 
-namespace ChungusEngine
+namespace ChungusEngine.Kinematics
 {
     internal class PlayerController
     {

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace ChungusEngine
+namespace ChungusEngine.WinForms
 {
     public static class KeyboardPoller
     {

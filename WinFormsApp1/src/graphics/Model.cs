@@ -1,4 +1,5 @@
 ﻿using Assimp;
+using ChungusEngine.UsefulStuff;
 using OpenGL;
 using StbImageSharp;
 using System.Diagnostics;
@@ -6,7 +7,7 @@ using System.Numerics;
 using AssMesh = Assimp.Mesh;
 using Quaternion = System.Numerics.Quaternion;
 
-namespace ChungusEngine
+namespace ChungusEngine.Graphics
 {
     public class Model
     {
@@ -34,10 +35,10 @@ namespace ChungusEngine
             }
         }
 
-        public void LoadModel(PostProcessSteps steps = 
-            PostProcessSteps.Triangulate | 
-            PostProcessSteps.FlipUVs | 
-            PostProcessSteps.GenerateSmoothNormals | 
+        public void LoadModel(PostProcessSteps steps =
+            PostProcessSteps.Triangulate |
+            PostProcessSteps.FlipUVs |
+            PostProcessSteps.GenerateSmoothNormals |
             PostProcessSteps.CalculateTangentSpace |
             PostProcessSteps.OptimizeMeshes
         )
@@ -123,7 +124,7 @@ namespace ChungusEngine
             var normalMaps = LoadMaterialTextures(material, TextureType.Normals);
             var heightMaps = LoadMaterialTextures(material, TextureType.Ambient);
 
-            textures = [..textures, ..diffuseMaps, ..specularMaps, ..normalMaps, ..heightMaps];
+            textures = [.. textures, .. diffuseMaps, .. specularMaps, .. normalMaps, .. heightMaps];
 
 
             return new Mesh(vertices, indices, textures);
@@ -166,7 +167,8 @@ namespace ChungusEngine
             {
                 Debug.WriteLine($"Texture cache hit for {filename}");
                 return value;
-            } else
+            }
+            else
             {
                 Debug.WriteLine($"Texture cache miss for {filename}");
 
@@ -175,7 +177,7 @@ namespace ChungusEngine
                 using (var stream = File.OpenRead(filename))
                 {
                     ImageResult result = ImageResult.FromStream(stream, ColorComponents.RedGreenBlue);
-                    
+
                     byte[] data = result.Data;
 
                     Gl.BindTexture(TextureTarget.Texture2d, textureId);

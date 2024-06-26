@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChungusEngine
+namespace ChungusEngine.Graphics
 {
     public class SimpleModel
     {
@@ -58,7 +58,7 @@ namespace ChungusEngine
             // FIXME try to figure out how to compute this dynamically, this will break for models
             // other than the cube I got
             Gl.DrawElements(PrimitiveType.Triangles, 6 * 2 * 3, DrawElementsType.UnsignedShort, null);
-            Gl.BindVertexArray(0);  
+            Gl.BindVertexArray(0);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Khronos;
 using System.Diagnostics;
 
-namespace ChungusEngine
+namespace ChungusEngine.WinForms
 {
     internal static class Program
     {

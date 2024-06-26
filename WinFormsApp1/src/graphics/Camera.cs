@@ -1,9 +1,11 @@
-﻿using OpenGL;
+﻿using ChungusEngine.Physics;
+using ChungusEngine.UsefulStuff;
+using OpenGL;
 using System.Diagnostics;
 using System.Numerics;
 using Quaternion = System.Numerics.Quaternion;
 
-namespace ChungusEngine
+namespace ChungusEngine.Graphics
 {
     public class Camera
     {
@@ -13,11 +15,15 @@ namespace ChungusEngine
 
         private Vector3 Scale = Static.Unit3;
 
-        private Matrix4x4f CameraTransform { get { 
-                return Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) 
-                    * Matrix4x4f.Scaled(Scale.X, Scale.Y, Scale.Z) 
+        private Matrix4x4f CameraTransform
+        {
+            get
+            {
+                return Matrix4x4f.Translated(Position.X, Position.Y, Position.Z)
+                    * Matrix4x4f.Scaled(Scale.X, Scale.Y, Scale.Z)
                     * BuildRotationMatrix();
-        } }
+            }
+        }
 
         public Matrix4x4f View()
         {
@@ -101,8 +107,8 @@ namespace ChungusEngine
         }
 
         public Matrix4x4f BuildRotationMatrix() =>
-            Matrix4x4f.RotatedZ(PitchYawRoll.Z) 
-            * Matrix4x4f.RotatedY(PitchYawRoll.Y) 
+            Matrix4x4f.RotatedZ(PitchYawRoll.Z)
+            * Matrix4x4f.RotatedY(PitchYawRoll.Y)
             * Matrix4x4f.RotatedX(PitchYawRoll.X);
 
         internal Camera()

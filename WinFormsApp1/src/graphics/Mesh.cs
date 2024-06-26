@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Vector3 = System.Numerics.Vector3;
 
-namespace ChungusEngine
+namespace ChungusEngine.Graphics
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct Vertex(Vector3 position, Vector3 normal, Vector2 uv)
@@ -116,8 +116,6 @@ namespace ChungusEngine
             Gl.BindVertexArray(VAO);
             Gl.DrawElements(OpenGL.PrimitiveType.Triangles, Indices.Count, DrawElementsType.UnsignedInt, 0);
             Gl.BindVertexArray(0);
-
-            Gl.ActiveTexture(TextureUnit.Texture0);
         }
 
         public void Dispose()

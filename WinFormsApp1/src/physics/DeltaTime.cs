@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChungusEngine
+namespace ChungusEngine.Physics
 {
     internal class DeltaTime
     {

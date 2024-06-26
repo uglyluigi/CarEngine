@@ -1,6 +1,7 @@
-﻿using System.Numerics;
+﻿using ChungusEngine.UsefulStuff;
+using System.Numerics;
 
-namespace ChungusEngine
+namespace ChungusEngine.Graphics
 {
     public class GameObject : IDisposable
     {

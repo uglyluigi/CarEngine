@@ -1,9 +1,9 @@
-﻿
+﻿using ChungusEngine.Graphics;
 using OpenGL;
 using System.Numerics;
 using Quaternion = System.Numerics.Quaternion;
 
-namespace ChungusEngine
+namespace ChungusEngine.UsefulStuff
 {
     public class Static
     {
