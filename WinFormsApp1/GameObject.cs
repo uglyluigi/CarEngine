@@ -7,14 +7,26 @@ using System.Threading.Tasks;
 
 namespace ChungusEngine
 {
-    public class GameObject
+    public class GameObject : IDisposable
     {
-        private Lazy<Model> model;
+        private readonly Model model;
+        private readonly int id;
 
-        public GameObject(string objectModelPath, Vector3 position)
+        public GameObject(string objectModelPath, Quaternion rotation, Vector3 position)
         {
-            model = new(new Model(objectModelPath, position));
+            model = new Model(objectModelPath, position)
+            {
+                Rotation = rotation
+            };
+
+            id = ModelRegistry.RegisterModel(model);
             model.LoadModel();
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            ModelRegistry.DeregisterModel(id);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace ChungusEngine
         private static ShaderProgram Program;
         private readonly Model BackpackModel = new Model("models/backpack/backpack.obj", new(0.0f, 0.0f, -10.0f));
         private static MouseEventMessageFilter MouseFilter = new();
-        private static bool ItDoBeRotating = false;
+        public List<GameObject> GameObjects = new List<GameObject>();
 
         public WindowProvider()
         {
@@ -103,6 +103,8 @@ namespace ChungusEngine
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load(1);
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load_thread(1);
 
+            GameObjects.Add(new GameObject("models/backpack/backpack.obj", Quaternion.Identity, new Vector3(0.0f, 0.0f, -10.0f)));
+
             // Update the delta time provider,
             // now that everything is set up.
             DeltaTime.Update();
@@ -133,12 +135,6 @@ namespace ChungusEngine
 
             // Update the last time that a frame was rendered
             DeltaTime.Update();
- 
-            if (ItDoBeRotating)
-            {
-                BackpackModel.Rotation = Quaternion.Normalize(Quaternion.Slerp(BackpackModel.Rotation, -BackpackModel.Rotation * Util.J, 0.05f));
-                Debug.WriteLine(BackpackModel.Rotation.ToString());
-            }
         }
 
 

@@ -101,7 +101,7 @@ namespace ChungusEngine
 
     public class ModelRegistry
     {
-        private static readonly Dictionary<int, Model> ModelDictionary = [];
+        public static readonly Dictionary<int, Model> ModelDictionary = [];
         private static int ModelNumber = 0;
 
         public static int RegisterModel(Model model)
@@ -115,7 +115,7 @@ namespace ChungusEngine
 
         public static void DrawAll(ShaderProgram program)
         {
-            foreach (var model in  ModelDictionary.Values)
+            foreach (var model in ModelDictionary.Values)
             {
                 model.Draw(program);
             }
