@@ -1,6 +1,6 @@
 ﻿namespace ChungusEngine
 {
-    partial class SampleForm
+    partial class WindowProvider
     {
         /// <summary>
         /// Variabile di progettazione necessaria.

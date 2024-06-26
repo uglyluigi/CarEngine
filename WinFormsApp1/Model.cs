@@ -8,14 +8,21 @@ using Quaternion = System.Numerics.Quaternion;
 
 namespace ChungusEngine
 {
-    public class Model(string modelPath, Vector3 position)
+    public class Model
     {
-        public string ModelPath => modelPath;
+        public string ModelPath;
         public List<Mesh> Meshes { get; private set; } = [];
         public string directory;
-        public Vector3 Position => position;
+        public Vector3 Position;
         public Quaternion Rotation = Quaternion.Identity;
-        public Matrix4x4f ModelTransform { get { return Matrix4x4f.Identity * Util.QuatToMatrix(Rotation) * Matrix4x4f.Translated(Position.X, Position.Y, Position.Z); } }
+        public Matrix4x4f ModelTransform { get { return Matrix4x4f.Translated(Position.X, Position.Y, Position.Z) * Util.QuatToMatrix(Rotation); } }
+
+        public Model(string modelPath, Vector3 position)
+        {
+            Position = position;
+            ModelPath = modelPath;
+            LoadModel();
+        }
 
 
         public void Draw(ShaderProgram program)

@@ -7,11 +7,6 @@ using Quaternion = System.Numerics.Quaternion;
 
 namespace ChungusEngine
 {
-    public enum _Direction
-    {
-        UP,
-        DOWN
-    }
 
     public delegate void MouseMovedEvent();
 
@@ -32,26 +27,18 @@ namespace ChungusEngine
         }
     }
 
-    public partial class SampleForm : Form
+    public partial class WindowProvider : Form
     {
-        private static Camera Camera = new();
-
+        //TODO move this
+        public static Camera Camera = new();
         private static ShaderProgram Program;
-
         private readonly Model BackpackModel = new Model("models/backpack/backpack.obj", new(0.0f, 0.0f, -10.0f));
+        private static MouseEventMessageFilter MouseFilter = new();
         private static bool ItDoBeRotating = false;
 
-        private static MouseEventMessageFilter MouseFilter = new();
-
-
-        /// <summary>
-        /// Construct a SampleForm.
-        /// </summary>
-        public SampleForm()
+        public WindowProvider()
         {
             KeyPreview = true;
-            KeyDown += new(Form1_KeyDown);
-            KeyUp += new(Form1_KeyUp);
 
             MouseFilter.TheMouseMoved += TheMouseMoved;
             Application.AddMessageFilter(MouseFilter);
@@ -73,7 +60,6 @@ namespace ChungusEngine
             Camera.UpdateCameraRotation(Vec);
             var (X_N, Y_N) = (Location.X, Location.Y);
             Cursor.Position = new(X_N + Width / 2, Y_N + Height / 2);
-
         }
 
         /// <summary>
@@ -117,12 +103,14 @@ namespace ChungusEngine
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load(1);
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load_thread(1);
 
-            BackpackModel.LoadModel();
+            // Update the delta time provider,
+            // now that everything is set up.
             DeltaTime.Update();
         }
 
         private void RenderControl_Render(object sender, GlControlEventArgs e)
         {
+
             Control senderControl = (Control)sender;
 
 
@@ -135,7 +123,13 @@ namespace ChungusEngine
             Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Camera.View());
             Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Camera.Projection());
 
-            BackpackModel.Draw(Program);
+            // Check keyboard state every frame
+            // Originally I was using the WinForms-supported
+            // event-driven API but this made delta time calculations
+            // impossible. Now it uses a Win32 function that is called
+            // every frame.
+            KeyboardPoller.PollAndHandleKeyboardState();
+            ModelRegistry.DrawAll(Program);
 
             // Update the last time that a frame was rendered
             DeltaTime.Update();
@@ -214,38 +208,12 @@ namespace ChungusEngine
 
         private void RenderControl_ContextUpdate(object sender, GlControlEventArgs e)
         {
+
         }
 
         private void RenderControl_ContextDestroying(object sender, GlControlEventArgs e)
         {
 
-        }
-
-        private void Form1_KeyDown(object? sender, KeyEventArgs e)
-        {
-            if (e.KeyCode is Keys.Escape)
-            {
-                Application.Exit();
-            }
-
-            if (e.KeyCode is Keys.W or Keys.A or Keys.S or Keys.D)
-            {
-                Camera.HandleKeyboardInput(e);
-            } else if (e.KeyCode is Keys.Space)
-            {
-                ItDoBeRotating = true;
-            }
-        }
-
-        private void Form1_KeyUp(object? sender, KeyEventArgs e)
-        {
-            if (e.KeyCode is Keys.W or Keys.A or Keys.S or Keys.D)
-            {
-                //Camera.HandleKeyboardInput(e);
-            } else if (e.KeyCode is Keys.Space)
-            {
-                ItDoBeRotating = false;
-            }
         }
 
         private static void GLDebugProc(DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)

@@ -83,11 +83,42 @@ namespace ChungusEngine
         public static (float X, float Y, float Z) Destructure(this Vector3 v) => (v.X, v.Y, v.Z);
 
         public static (float X, float Y, float Z) Destructure(this Vertex3f v) => (v.x, v.y, v.z);
+
+
+        public static float Clamp(this float x, float min, float max)
+        {
+            if (x < min) return min;
+            if (x > max) return max;
+            return x;
+        }
     }
 
     public class TextureCache
     {
-        public static Dictionary<string, uint> Cache = new();
-        public static Dictionary<string, Texture> TexObjCache = new();
+        public static Dictionary<string, uint> Cache = [];
+        public static Dictionary<string, Texture> TexObjCache = [];
+    }
+
+    public class ModelRegistry
+    {
+        private static readonly Dictionary<int, Model> ModelDictionary = [];
+        private static int ModelNumber = 0;
+
+        public static int RegisterModel(Model model)
+        {
+            ModelNumber += 1;
+            ModelDictionary.Add(ModelNumber, model);
+            return ModelNumber;
+        }
+
+        public static bool DeregisterModel(int modelNumber) => ModelDictionary.Remove(modelNumber);
+
+        public static void DrawAll(ShaderProgram program)
+        {
+            foreach (var model in  ModelDictionary.Values)
+            {
+                model.Draw(program);
+            }
+        }
     }
 }
