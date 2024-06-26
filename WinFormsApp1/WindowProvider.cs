@@ -32,9 +32,8 @@ namespace ChungusEngine
         //TODO move this
         public static Camera Camera = new();
         private static ShaderProgram Program;
-        private readonly Model BackpackModel = new Model("models/backpack/backpack.obj", new(0.0f, 0.0f, -10.0f));
         private static MouseEventMessageFilter MouseFilter = new();
-        public List<GameObject> GameObjects = new List<GameObject>();
+        public List<GameObject> GameObjects = [];
 
         public WindowProvider()
         {
@@ -104,7 +103,7 @@ namespace ChungusEngine
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load_thread(1);
 
             GameObjects.Add(new GameObject("models/backpack/backpack.obj", Quaternion.Identity, new Vector3(0.0f, 0.0f, -10.0f)));
-
+            GameObjects.Add(new GameObject("models/floor.obj", Quaternion.Identity, new Vector3(0.0f, -5.0f, 0.0f)));
             // Update the delta time provider,
             // now that everything is set up.
             DeltaTime.Update();
@@ -112,7 +111,6 @@ namespace ChungusEngine
 
         private void RenderControl_Render(object sender, GlControlEventArgs e)
         {
-
             Control senderControl = (Control)sender;
 
 

@@ -10,7 +10,7 @@ uniform sampler2D texture_normals1;
 uniform sampler2D texture_height1;
 
 float near = 1.0;
-float far = 20.0;
+float far = 100.0;
 
 float LinearizeDepth(float depth)
 {
@@ -20,5 +20,7 @@ float LinearizeDepth(float depth)
 
 void main() 
 {
+	float depth = LinearizeDepth(gl_FragCoord.z) / far;
+	gl_FragDepth = depth;
 	Color = texture(texture_diffuse1, vUV);
 }
