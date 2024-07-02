@@ -11,7 +11,9 @@ namespace ChungusEngine.Graphics
     {
         private Vector3 PitchYawRoll = new();
 
-        public Vector3 Position = new(0.0f, 0.0f, -10.0f);
+        public Vector3 Position { get { return -InvertedPosition; } set { InvertedPosition = -value; } }
+
+        public Vector3 InvertedPosition = new(0.0f, 0.0f, 10.0f);
 
         private Vector3 Scale = Static.Unit3;
 
@@ -73,30 +75,30 @@ namespace ChungusEngine.Graphics
             PitchYawRoll.X = PitchYawRoll.X.Clamp(-90.0f, 90.0f);
         }
 
-        private float speed = 100.0f;
+        private float Speed = 20.0f;
 
         private void MoveForward()
         {
-            var factor = GetForwardVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
+            var factor = GetForwardVector() * Speed * Static.XZPlane3 * DeltaTime.Dt;
             Position += factor;
         }
 
         private void MoveBackward()
         {
-            var factor = GetForwardVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
+            var factor = GetForwardVector() * Speed * Static.XZPlane3 * DeltaTime.Dt;
             Position -= factor;
         }
 
         private void MoveRight()
         {
 
-            var factor = GetRightVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
+            var factor = GetRightVector() * Speed * Static.XZPlane3 * DeltaTime.Dt;
             Position -= factor;
         }
 
         private void MoveLeft()
         {
-            var factor = GetRightVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
+            var factor = GetRightVector() * Speed * Static.XZPlane3 * DeltaTime.Dt;
             Position += factor;
         }
 

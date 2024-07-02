@@ -1,4 +1,5 @@
 ﻿using ChungusEngine.Graphics;
+using OpenGL;
 using System.Diagnostics;
 
 namespace ChungusEngine.Physics.Collision
@@ -9,9 +10,13 @@ namespace ChungusEngine.Physics.Collision
         {
             foreach (GameObject obj in gameObjects)
             {
-                if (WindowProvider.Camera.BoundingBox.IsAnyPointBoundBy(obj.AABB))
+                if (WindowProvider.Camera.BoundingBox.IsCompletelyBoundBy(obj.AABB))
                 {
-                    Debug.WriteLine("Collision");
+                    Gl.ClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+                }
+                else
+                {
+                    Gl.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
                 }
             }
         }

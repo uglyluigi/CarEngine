@@ -29,7 +29,7 @@ namespace ChungusEngine.Physics.Collision
         // Does the collision tester care if this box is being intersected?
         public bool Active { get; set; } = true;
 
-        public ICollidable GameObject { get; set; }
+        public ICollidable? GameObject { get; set; }
 
         public AxisAlignedBoundingBox(Vector3 position, Vector3 halfExtents)
         {
@@ -72,12 +72,15 @@ namespace ChungusEngine.Physics.Collision
                 Bind();
                 Bound = true;
             }
+
             Gl.BindVertexArray(VAO);
             Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             Gl.UniformMatrix4f(program.ModelMatrix, 1, false, Transform);
             program.SetBool("ApplyViewTransform", !BoundsCamera);
+            program.SetBool("DrawingAABB", true);
             Gl.DrawElements(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
             program.SetBool("ApplyViewTransform", false);
+            program.SetBool("DrawingAABB", false);
             Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             Gl.BindVertexArray(0);
         }
@@ -118,7 +121,6 @@ namespace ChungusEngine.Physics.Collision
             var (x, y, z) = (halfExtents.X, halfExtents.Y, halfExtents.Z);
             var (cx, cy, cz) = (position.X, position.Y, position.Z);
 
-
             // Upper plane is defined in clockwise order with points 0-3
             // points 4-7 
             points[0] = new(cx + x, cy + y, cz + z);
@@ -135,6 +137,7 @@ namespace ChungusEngine.Physics.Collision
 
         public Vector3[] Bounds()
         {
+            if (BoundsCamera) return Bounds(HalfExtents, WindowProvider.Camera.InvertedPosition);
             return Bounds(HalfExtents, Position);
         }
 
@@ -223,6 +226,7 @@ namespace ChungusEngine.Physics.Collision
             {
                 if (box.IsPointBound(v))
                 {
+                    Debug.WriteLine($"Point {v} @ {Position} bound by box centered @ {box.Position} {string.Join(",", box.Bounds())}");
                     return true;
                 }
             }

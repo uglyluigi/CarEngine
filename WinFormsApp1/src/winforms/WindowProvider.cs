@@ -107,7 +107,6 @@ namespace ChungusEngine
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load_thread(1);
 
             GameObjects.Add(new GameObject("models/backpack/backpack.obj", Quaternion.Identity, new Vector3(0.0f, 0.0f, -10.0f), new Vector3(6.0f, 6.0f, 6.0f)));
-            //GameObjects.Add(new GameObject("models/floor.obj", Quaternion.Identity, new Vector3(0.0f, -5.0f, 0.0f)));
             // Update the delta time provider,
             // now that everything is set up.
             DeltaTime.Update();
@@ -127,6 +126,7 @@ namespace ChungusEngine
             Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Camera.View());
             Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Camera.Projection());
             Program.SetBool("ApplyViewTransform", true);
+            Program.SetBool("DrawingAABB", false);
 
             // Check keyboard state every frame
             // Originally I was using the WinForms-supported
