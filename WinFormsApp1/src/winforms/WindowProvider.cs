@@ -51,18 +51,21 @@ namespace ChungusEngine
 
         private void TheMouseMoved()
         {
-            var CursorPos = Cursor.Position;
-            var WindowRectangle = RectangleToScreen(ClientRectangle);
-            // Some cool magic numbers that I need to add to compensate for some weird
-            // missing space
-            // The 31px makes sense because the top bar is 32px. Not sure where the last one went tho
-            // Anyway this code basically imposes a 2d coordinate plane with its origin centered at
-            // the center of the Forms window. 
-            var Vec = new Vector2(CursorPos.X + 8 - WindowRectangle.X - Width / 2, CursorPos.Y - WindowRectangle.Y + 31 - Height / 2);
-            // This updates the bingus rotation based on the mouse vector.
-            Camera.UpdateCameraRotation(Vec);
-            var (X_N, Y_N) = (Location.X, Location.Y);
-            Cursor.Position = new(X_N + Width / 2, Y_N + Height / 2);
+            if (ActiveForm != null)
+            {
+                var CursorPos = Cursor.Position;
+                var WindowRectangle = RectangleToScreen(ClientRectangle);
+                // Some cool magic numbers that I need to add to compensate for some weird
+                // missing space
+                // The 31px makes sense because the top bar is 32px. Not sure where the last one went tho
+                // Anyway this code basically imposes a 2d coordinate plane with its origin centered at
+                // the center of the Forms window. 
+                var Vec = new Vector2(CursorPos.X + 8 - WindowRectangle.X - Width / 2, CursorPos.Y - WindowRectangle.Y + 31 - Height / 2);
+                // This updates the bingus rotation based on the mouse vector.
+                Camera.UpdateCameraRotation(Vec);
+                var (X_N, Y_N) = (Location.X, Location.Y);
+                Cursor.Position = new(X_N + Width / 2, Y_N + Height / 2);
+            }
         }
 
         /// <summary>
@@ -93,12 +96,8 @@ namespace ChungusEngine
                 Gl.Enable(EnableCap.Multisample);
 
             // https://developer.nvidia.com/content/depth-precision-visualized
-            //Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
+            Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
 
-            //Gl.DepthFunc(DepthFunction.Equal);
-            //Gl.Enable(EnableCap.Blend);
-            //Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-            //Gl.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             Gl.Enable(EnableCap.DepthTest);
             Gl.DepthFunc(DepthFunction.Less);
             Gl.DepthMask(true);
@@ -106,8 +105,8 @@ namespace ChungusEngine
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load(1);
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load_thread(1);
 
-            GameObjects.Add(new GameObject("models/backpack/backpack.obj", Quaternion.Identity, new Vector3(0.0f, 0.0f, -10.0f)));
-            GameObjects.Add(new GameObject("models/floor.obj", Quaternion.Identity, new Vector3(0.0f, -5.0f, 0.0f)));
+            GameObjects.Add(new GameObject("models/backpack/backpack.obj", Quaternion.Identity, new Vector3(0.0f, 0.0f, -10.0f), new Vector3(6.0f, 6.0f, 6.0f)));
+            //GameObjects.Add(new GameObject("models/floor.obj", Quaternion.Identity, new Vector3(0.0f, -5.0f, 0.0f)));
             // Update the delta time provider,
             // now that everything is set up.
             DeltaTime.Update();
@@ -126,16 +125,27 @@ namespace ChungusEngine
 
             Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Camera.View());
             Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Camera.Projection());
+            Program.SetBool("ApplyViewTransform", true);
 
             // Check keyboard state every frame
             // Originally I was using the WinForms-supported
             // event-driven API but this made delta time calculations
             // impossible. Now it uses a Win32 function that is called
             // every frame.
-            KeyboardPoller.PollAndHandleKeyboardState();
+            if (ActiveForm != null)
+            {
+                KeyboardPoller.PollAndHandleKeyboardState();
+            }
+
             ModelRegistry.DrawAll(Program);
 
-            // Update the last time that a frame was rendered
+            Camera.BoundingBox.Draw(Program);
+
+            foreach (var obj in GameObjects)
+            {
+                obj.AABB.Draw(Program);
+            }
+
             DeltaTime.Update();
         }
 

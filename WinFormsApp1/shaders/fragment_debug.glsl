@@ -22,5 +22,5 @@ void main()
 {
 	float depth = LinearizeDepth(gl_FragCoord.z) / far;
 	gl_FragDepth = depth;
-	Color = texture(texture_diffuse1, vUV);
+	Color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 }

@@ -1,19 +1,22 @@
 ﻿using ChungusEngine.Physics;
+using ChungusEngine.Physics.Collision;
+using ChungusEngine.src.physics;
 using ChungusEngine.UsefulStuff;
 using OpenGL;
 using System.Diagnostics;
 using System.Numerics;
-using Quaternion = System.Numerics.Quaternion;
 
 namespace ChungusEngine.Graphics
 {
-    public class Camera
+    public class Camera : ICollidable
     {
         private Vector3 PitchYawRoll = new();
 
-        public Vector3 Position = new(0.0f, 0.0f, -5.0f);
+        public Vector3 Position = new(0.0f, 0.0f, -10.0f);
 
         private Vector3 Scale = Static.Unit3;
+
+        public AxisAlignedBoundingBox BoundingBox;
 
         private Matrix4x4f CameraTransform
         {
@@ -33,6 +36,12 @@ namespace ChungusEngine.Graphics
         public Matrix4x4f Projection()
         {
             return Perspective();
+        }
+
+        public Vector3 EyePosition()
+        {
+            var eyePosition = View().Row3;
+            return new Vector3(eyePosition.x, eyePosition.y, eyePosition.z);
         }
 
         public Vector3 GetForwardVector()
@@ -65,26 +74,31 @@ namespace ChungusEngine.Graphics
             PitchYawRoll.X = PitchYawRoll.X.Clamp(-90.0f, 90.0f);
         }
 
-        private float speed = 100.0f;
+        private float speed = 1.0f;
 
         private void MoveForward()
         {
-            Position += GetForwardVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
+            var factor = GetForwardVector() * speed * Static.XZPlane3;
+            Position += factor;
         }
 
         private void MoveBackward()
         {
-            Position -= GetForwardVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
+            var factor = GetForwardVector() * speed * Static.XZPlane3;
+            Position -= factor;
         }
 
         private void MoveRight()
         {
-            Position -= GetRightVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
+
+            var factor = GetRightVector() * speed * Static.XZPlane3;
+            Position -= factor;
         }
 
         private void MoveLeft()
         {
-            Position += GetRightVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
+            var factor = GetRightVector() * speed * Static.XZPlane3;
+            Position += factor;
         }
 
         internal void HandleKeyboardInput(Keys code)
@@ -104,6 +118,13 @@ namespace ChungusEngine.Graphics
                     MoveRight();
                     break;
             }
+
+            UpdateAABBPosition();
+        }
+
+        private void UpdateAABBPosition()
+        {
+            BoundingBox.Position = Position;
         }
 
         public Matrix4x4f BuildRotationMatrix() =>
@@ -111,8 +132,18 @@ namespace ChungusEngine.Graphics
             * Matrix4x4f.RotatedY(PitchYawRoll.Y)
             * Matrix4x4f.RotatedX(PitchYawRoll.X);
 
+        public void OnCollidedWith(AxisAlignedBoundingBox source)
+        {
+            Debug.WriteLine("Camera collided with");
+        }
+
         internal Camera()
         {
+            BoundingBox = new(Position, new Vector3(15.0f, 15.0f, 15.0f))
+            {
+                BoundsCamera = true,
+                GameObject = this
+            };
         }
     }
 

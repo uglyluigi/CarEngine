@@ -1,18 +1,8 @@
 ﻿using Assimp;
 using OpenGL;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using Vector3 = System.Numerics.Vector3;
 
 namespace ChungusEngine.Graphics
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Vertex(Vector3 position, Vector3 normal, Vector2 uv)
-    {
-        public readonly Vector3 Position => position;
-        public readonly Vector3 Normal => normal;
-        public readonly Vector2 UV => uv;
-    }
 
     public struct Texture(uint id, TextureType type, string path)
     {
@@ -41,34 +31,7 @@ namespace ChungusEngine.Graphics
 
         private void SetupMesh()
         {
-            // Generate the ids for the VAO/VBO/EBO
-            VAO = Gl.GenVertexArray();
-            VBO = Gl.GenBuffer();
-            EBO = Gl.GenBuffer();
-
-            Gl.BindVertexArray(VAO);
-            Gl.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-
-            int VERTEX_SIZE = Marshal.SizeOf(typeof(Vertex));
-
-            Gl.BufferData(BufferTarget.ArrayBuffer, (uint)(Vertices.Count * VERTEX_SIZE), Vertices.ToArray(), BufferUsage.StaticDraw);
-
-            Gl.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
-            Gl.BufferData(BufferTarget.ElementArrayBuffer, (uint)(Indices.Count * sizeof(uint)), Indices.ToArray(), BufferUsage.StaticDraw);
-
-            // Expose position vector to shader program
-            Gl.EnableVertexAttribArray(0);
-            Gl.VertexAttribPointer(0, 3, VertexAttribType.Float, false, VERTEX_SIZE, 0);
-
-            // Expose vertex normal to shader program
-            Gl.EnableVertexAttribArray(1);
-            Gl.VertexAttribPointer(1, 3, VertexAttribType.Float, false, VERTEX_SIZE, 12);
-
-            // Expose tex coordinates to shader program
-            Gl.EnableVertexAttribArray(2);
-            Gl.VertexAttribPointer(2, 2, VertexAttribType.Float, false, VERTEX_SIZE, 24);
-
-            Gl.BindVertexArray(0);
+            (VAO, VBO, EBO) = OGLServices.Buffer([.. Vertices], [.. Indices]);
         }
 
         public void Draw(ShaderProgram shader)

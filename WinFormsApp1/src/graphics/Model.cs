@@ -147,7 +147,7 @@ namespace ChungusEngine.Graphics
                 }
                 else
                 {
-                    Texture tex = new(TextureFromFile(slot.FilePath, directory), type, slot.FilePath);
+                    Texture tex = new(OGLServices.TextureFromFile(slot.FilePath, directory), type, slot.FilePath);
                     TextureCache.TexObjCache.Add(slot.FilePath, tex);
                     textureToAdd = tex;
                 }
@@ -156,42 +156,6 @@ namespace ChungusEngine.Graphics
             }
 
             return textures;
-        }
-
-
-        uint TextureFromFile(string path, string directory)
-        {
-            string filename = $"{directory}/{path}";
-
-            if (TextureCache.Cache.TryGetValue(filename, out uint value))
-            {
-                Debug.WriteLine($"Texture cache hit for {filename}");
-                return value;
-            }
-            else
-            {
-                Debug.WriteLine($"Texture cache miss for {filename}");
-
-                uint textureId = Gl.GenTexture();
-
-                using (var stream = File.OpenRead(filename))
-                {
-                    ImageResult result = ImageResult.FromStream(stream, ColorComponents.RedGreenBlue);
-
-                    byte[] data = result.Data;
-
-                    Gl.BindTexture(TextureTarget.Texture2d, textureId);
-                    Gl.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgb, result.Width, result.Height, 0, PixelFormat.Rgb, PixelType.UnsignedByte, data);
-                    Gl.GenerateMipmap(TextureTarget.Texture2d);
-                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapS, OpenGL.TextureWrapMode.Repeat);
-                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapT, OpenGL.TextureWrapMode.Repeat);
-                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, TextureMinFilter.LinearMipmapLinear);
-                    Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, TextureMagFilter.Linear);
-                }
-
-                TextureCache.Cache.Add(filename, textureId);
-                return textureId;
-            }
         }
     }
 }

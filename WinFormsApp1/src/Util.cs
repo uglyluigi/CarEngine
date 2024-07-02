@@ -91,6 +91,29 @@ namespace ChungusEngine.UsefulStuff
             if (x > max) return max;
             return x;
         }
+
+        public static Vector4 Extend(this Vector3 v)
+        {
+            return new Vector4(v.X, v.Y, v.Z, 1);
+        }
+
+        public static Vector3 DiscardW(this Vector4 v)
+        {
+            return new Vector3(v.X, v.Y, v.Z);
+        }
+
+        public static Vector3 Multiply(Matrix4x4f m, Vector3 v)
+        {
+            var vector = v.Extend();
+            var (x, y, z, w) = (vector.X, vector.Y, vector.Z, vector.W);
+
+            Vector4 hetero = new(m.Column0.x * x + m.Column0.y * y + m.Column0.z * z + m.Column0.w * w,
+                       m.Column1.x * x + m.Column1.y * y + m.Column1.z * z + m.Column1.w * w,
+                       m.Column2.x * x + m.Column2.y * y + m.Column2.z * z + m.Column2.w * w,
+                       m.Column3.x * x + m.Column3.y * y + m.Column3.z * z + m.Column3.w * w);
+
+            return new(hetero.X / hetero.W, hetero.Y / hetero.W, hetero.Z / hetero.W);
+        }
     }
 
     public class TextureCache
