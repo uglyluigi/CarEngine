@@ -1,6 +1,5 @@
 ﻿using ChungusEngine.Physics;
 using ChungusEngine.Physics.Collision;
-using ChungusEngine.src.physics;
 using ChungusEngine.UsefulStuff;
 using OpenGL;
 using System.Diagnostics;
@@ -74,30 +73,30 @@ namespace ChungusEngine.Graphics
             PitchYawRoll.X = PitchYawRoll.X.Clamp(-90.0f, 90.0f);
         }
 
-        private float speed = 1.0f;
+        private float speed = 100.0f;
 
         private void MoveForward()
         {
-            var factor = GetForwardVector() * speed * Static.XZPlane3;
+            var factor = GetForwardVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
             Position += factor;
         }
 
         private void MoveBackward()
         {
-            var factor = GetForwardVector() * speed * Static.XZPlane3;
+            var factor = GetForwardVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
             Position -= factor;
         }
 
         private void MoveRight()
         {
 
-            var factor = GetRightVector() * speed * Static.XZPlane3;
+            var factor = GetRightVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
             Position -= factor;
         }
 
         private void MoveLeft()
         {
-            var factor = GetRightVector() * speed * Static.XZPlane3;
+            var factor = GetRightVector() * speed * Static.XZPlane3 * DeltaTime.Dt;
             Position += factor;
         }
 
@@ -139,12 +138,11 @@ namespace ChungusEngine.Graphics
 
         internal Camera()
         {
-            BoundingBox = new(Position, new Vector3(15.0f, 15.0f, 15.0f))
+            BoundingBox = new(Position, new Vector3(5.0f, 5.0f, 5.0f))
             {
                 BoundsCamera = true,
                 GameObject = this
             };
         }
     }
-
 }

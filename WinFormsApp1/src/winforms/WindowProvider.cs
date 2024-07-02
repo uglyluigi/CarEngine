@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Text;
 using Quaternion = System.Numerics.Quaternion;
 using ChungusEngine.UsefulStuff;
+using ChungusEngine.Physics.Collision;
 
 namespace ChungusEngine
 {
@@ -145,6 +146,8 @@ namespace ChungusEngine
             {
                 obj.AABB.Draw(Program);
             }
+
+            CollisionTest.RunCollisionTests(GameObjects);
 
             DeltaTime.Update();
         }

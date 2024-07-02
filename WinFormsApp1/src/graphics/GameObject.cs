@@ -1,6 +1,5 @@
 ﻿using ChungusEngine.Physics;
 using ChungusEngine.Physics.Collision;
-using ChungusEngine.src.physics;
 using ChungusEngine.UsefulStuff;
 using System.Diagnostics;
 using System.Numerics;

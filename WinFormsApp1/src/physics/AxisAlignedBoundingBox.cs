@@ -1,6 +1,4 @@
 ﻿using ChungusEngine.Graphics;
-using ChungusEngine.src.physics;
-using ChungusEngine.UsefulStuff;
 using OpenGL;
 using System.Diagnostics;
 using System.Numerics;
@@ -197,6 +195,39 @@ namespace ChungusEngine.Physics.Collision
             }
 
             return (mins[0], mins[1], mins[2]);
+        }
+
+        /**
+         * Returns true if this AABB is completely bound by the
+         * supplied AABB.
+         */
+        public bool IsCompletelyBoundBy(AxisAlignedBoundingBox box)
+        {
+            foreach (var v in Bounds())
+            {
+                if (!box.IsPointBound(v))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /**
+         * Returns true if any point in this AABB is bound by the supplied box.
+         */
+        public bool IsAnyPointBoundBy(AxisAlignedBoundingBox box)
+        {
+            foreach (var v in Bounds())
+            {
+                if (box.IsPointBound(v))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
