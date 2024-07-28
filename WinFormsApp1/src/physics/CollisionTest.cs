@@ -10,9 +10,9 @@ namespace ChungusEngine.Physics.Collision
         {
             foreach (GameObject obj in gameObjects)
             {
-                if (WindowProvider.Camera.BoundingBox.IsCompletelyBoundBy(obj.AABB))
+                if (WindowProvider.Camera.BoundingBox.IsAnyPointBoundBy(obj.AABB))
                 {
-                    Gl.ClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+                   
                 }
                 else
                 {

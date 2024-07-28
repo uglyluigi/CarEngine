@@ -9,6 +9,7 @@ using System.Text;
 using Quaternion = System.Numerics.Quaternion;
 using ChungusEngine.UsefulStuff;
 using ChungusEngine.Physics.Collision;
+using ChungusEngine.Kinematics;
 
 namespace ChungusEngine
 {
@@ -140,14 +141,19 @@ namespace ChungusEngine
 
             ModelRegistry.DrawAll(Program);
 
-            Camera.BoundingBox.Draw(Program);
-
-            foreach (var obj in GameObjects)
+            foreach (var collider in ColliderExtensions.AllColliders)
             {
-                obj.AABB.Draw(Program);
-            }
+                collider.GetBoundingBox().Draw(Program);
 
-            CollisionTest.RunCollisionTests(GameObjects);
+                foreach (var collider2 in ColliderExtensions.AllColliders)
+                {
+                    if (collider != collider2 && collider.TestCollision(collider2))
+                    {
+                        collider.OnCollision(collider.GetBoundingBox(), collider2.GetBoundingBox());
+                        collider2.OnCollision(collider2.GetBoundingBox(), collider.GetBoundingBox());
+                    }
+                }
+            }
 
             DeltaTime.Update();
         }

@@ -29,8 +29,6 @@ namespace ChungusEngine.Physics.Collision
         // Does the collision tester care if this box is being intersected?
         public bool Active { get; set; } = true;
 
-        public ICollidable? GameObject { get; set; }
-
         public AxisAlignedBoundingBox(Vector3 position, Vector3 halfExtents)
         {
             Position = position;

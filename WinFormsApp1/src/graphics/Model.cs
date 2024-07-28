@@ -1,8 +1,6 @@
 ﻿using Assimp;
 using ChungusEngine.UsefulStuff;
 using OpenGL;
-using StbImageSharp;
-using System.Diagnostics;
 using System.Numerics;
 using AssMesh = Assimp.Mesh;
 using Quaternion = System.Numerics.Quaternion;

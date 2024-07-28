@@ -3,14 +3,16 @@ using ChungusEngine.Physics.Collision;
 using ChungusEngine.UsefulStuff;
 using System.Diagnostics;
 using System.Numerics;
+using ChungusEngine.Kinematics;
 
 namespace ChungusEngine.Graphics
 {
-    public class GameObject : IDisposable, ICollidable
+    public class GameObject : IDisposable, Collider
     {
         public readonly Model model;
         private readonly int id;
-        public readonly AxisAlignedBoundingBox AABB;
+        public AxisAlignedBoundingBox AABB;
+
 
         public GameObject(string objectModelPath, Quaternion rotation, Vector3 position, Vector3 halfExtents)
         {
@@ -21,10 +23,8 @@ namespace ChungusEngine.Graphics
 
             id = ModelRegistry.RegisterModel(model);
             model.LoadModel();
-            AABB = new(position, halfExtents)
-            {
-                GameObject = this
-            };
+            AABB = new AxisAlignedBoundingBox(position, halfExtents);
+            this.RegisterCollider();
         }
 
         public void Dispose()
@@ -33,9 +33,19 @@ namespace ChungusEngine.Graphics
             ModelRegistry.DeregisterModel(id);
         }
 
-        public void OnCollidedWith(AxisAlignedBoundingBox source)
+        public AxisAlignedBoundingBox GetBoundingBox()
         {
-            Debug.WriteLine("Collision");
+            return AABB;
+        }
+
+        public void OnCollision(AxisAlignedBoundingBox a, AxisAlignedBoundingBox b)
+        {
+
+        }
+
+        public GameObject? GetGameObject()
+        {
+            return this;
         }
     }
 }

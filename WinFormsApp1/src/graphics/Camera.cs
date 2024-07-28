@@ -4,10 +4,11 @@ using ChungusEngine.UsefulStuff;
 using OpenGL;
 using System.Diagnostics;
 using System.Numerics;
+using ChungusEngine.Kinematics;
 
 namespace ChungusEngine.Graphics
 {
-    public class Camera : ICollidable
+    public class Camera : Collider
     {
         private Vector3 PitchYawRoll = new();
 
@@ -133,9 +134,15 @@ namespace ChungusEngine.Graphics
             * Matrix4x4f.RotatedY(PitchYawRoll.Y)
             * Matrix4x4f.RotatedX(PitchYawRoll.X);
 
-        public void OnCollidedWith(AxisAlignedBoundingBox source)
+
+        public void OnCollision(AxisAlignedBoundingBox a, AxisAlignedBoundingBox b)
         {
-            Debug.WriteLine("Camera collided with");
+            Debug.WriteLine("Camera collision");
+        }
+
+        public AxisAlignedBoundingBox GetBoundingBox()
+        {
+            return BoundingBox;
         }
 
         internal Camera()
@@ -143,8 +150,8 @@ namespace ChungusEngine.Graphics
             BoundingBox = new(Position, new Vector3(5.0f, 5.0f, 5.0f))
             {
                 BoundsCamera = true,
-                GameObject = this
             };
+            this.RegisterCollider();
         }
     }
 }
