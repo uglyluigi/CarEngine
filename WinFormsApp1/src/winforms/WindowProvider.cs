@@ -97,12 +97,11 @@ namespace ChungusEngine
             if (Gl.CurrentVersion?.Api == KhronosVersion.ApiGl && glControl.MultisampleBits > 0)
                 Gl.Enable(EnableCap.Multisample);
 
-            // https://developer.nvidia.com/content/depth-precision-visualized
-            Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
-
             Gl.Enable(EnableCap.DepthTest);
             Gl.DepthFunc(DepthFunction.Less);
             Gl.DepthMask(true);
+            // https://developer.nvidia.com/content/depth-precision-visualized
+            Gl.ClipControl(ClipControlOrigin.LowerLeft, ClipControlDepth.ZeroToOne);
 
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load(1);
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load_thread(1);

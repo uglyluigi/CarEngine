@@ -18,17 +18,8 @@ namespace ChungusEngine.Graphics
 
     public static class OGLServices
     {
-        public static (uint VAO, uint VBO, uint EBO) Buffer(Vertex[] vertices, uint[] indices, bool logBind=false)
+        public static (uint VAO, uint VBO, uint EBO) Buffer(Vertex[] vertices, uint[] indices, bool logBind = false)
         {
-            if (logBind)
-            {
-                foreach (Vertex v in vertices)
-                {
-                    Debug.Write(v.Position.ToString() + ", ");
-                }
-
-                Debug.WriteLine("");
-            }
             uint VAO = GenVertexArray();
             uint VBO = GenBuffer();
             uint EBO = GenBuffer();
@@ -59,6 +50,16 @@ namespace ChungusEngine.Graphics
             Gl.BindVertexArray(0);
 
             return (VAO, VBO, EBO);
+        }
+
+        public static uint BufferLight()
+        {
+            uint id = GenVertexArray();
+            BindVertexArray(id);
+            BindBuffer(BufferTarget.ArrayBuffer, id);
+            VertexAttribPointer(0, 3, VertexAttribType.Float, false, 6 * sizeof(float), null);
+            EnableVertexAttribArray(0);
+            return id;
         }
 
         public static uint TextureFromFile(string path, string directory)
