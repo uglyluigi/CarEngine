@@ -11,6 +11,7 @@ namespace ChungusEngine.Graphics
         public int ModelMatrix;
         public int ViewMatrix;
         public int ProjectionMatrix;
+        public int SpriteColor;
 
         private uint vertex, fragment;
 
@@ -75,6 +76,7 @@ namespace ChungusEngine.Graphics
             {
                 throw new InvalidOperationException("ProjectionMatrix unavailable");
             }
+
         }
 
         public void Use()

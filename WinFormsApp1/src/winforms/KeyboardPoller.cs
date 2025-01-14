@@ -27,30 +27,7 @@ namespace ChungusEngine.WinForms
 
         public static void PollAndHandleKeyboardState()
         {
-            if (Keys.W.IsPressed())
-            {
-                WindowProvider.Camera.HandleKeyboardInput(Keys.W);
-            }
 
-            if (Keys.A.IsPressed())
-            {
-                WindowProvider.Camera.HandleKeyboardInput(Keys.A);
-            }
-
-            if (Keys.S.IsPressed())
-            {
-                WindowProvider.Camera.HandleKeyboardInput(Keys.S);
-            }
-
-            if (Keys.D.IsPressed())
-            {
-                WindowProvider.Camera.HandleKeyboardInput(Keys.D);
-            }
-
-            if (Keys.Escape.IsPressed())
-            {
-                Environment.Exit(0);
-            }
         }
     }
 }

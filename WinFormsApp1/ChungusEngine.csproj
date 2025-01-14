@@ -19,6 +19,10 @@
 	<PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="sprites\" />
+  </ItemGroup>
+
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 	  <Exec Command="robocopy shaders $(TargetDir)\shaders /IM /E /NFL /NDL /NJH /NJS /nc /ns /np&#xD;&#xA;robocopy models $(TargetDir)\models /IM /E /NFL /NDL /NJH /NJS /nc /ns /np" ContinueOnError="true" />

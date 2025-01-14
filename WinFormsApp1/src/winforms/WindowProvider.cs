@@ -10,6 +10,7 @@ using Quaternion = System.Numerics.Quaternion;
 using ChungusEngine.UsefulStuff;
 using ChungusEngine.Physics.Collision;
 using ChungusEngine.Kinematics;
+using ChungusEngine.src.graphics._2d;
 
 namespace ChungusEngine
 {
@@ -36,7 +37,8 @@ namespace ChungusEngine
     public partial class WindowProvider : Form
     {
         //TODO move this
-        public static Camera Camera = new();
+        //public static Camera Camera = new();
+        public static OrthoCamera Camera = new();
         private static ShaderProgram Program;
         private static MouseEventMessageFilter MouseFilter = new();
         public List<GameObject> GameObjects = [];
@@ -45,8 +47,8 @@ namespace ChungusEngine
         {
             KeyPreview = true;
 
-            MouseFilter.TheMouseMoved += TheMouseMoved;
-            Application.AddMessageFilter(MouseFilter);
+            //MouseFilter.TheMouseMoved += TheMouseMoved;
+            //Application.AddMessageFilter(MouseFilter);
 
             InitializeComponent();
         }
@@ -64,7 +66,7 @@ namespace ChungusEngine
                 // the center of the Forms window. 
                 var Vec = new Vector2(CursorPos.X + 8 - WindowRectangle.X - Width / 2, CursorPos.Y - WindowRectangle.Y + 31 - Height / 2);
                 // This updates the bingus rotation based on the mouse vector.
-                Camera.UpdateCameraRotation(Vec);
+                //Camera.UpdateCameraRotation(Vec);
                 var (X_N, Y_N) = (Location.X, Location.Y);
                 Cursor.Position = new(X_N + Width / 2, Y_N + Height / 2);
             }
@@ -97,7 +99,7 @@ namespace ChungusEngine
             if (Gl.CurrentVersion?.Api == KhronosVersion.ApiGl && glControl.MultisampleBits > 0)
                 Gl.Enable(EnableCap.Multisample);
 
-            Gl.Enable(EnableCap.DepthTest);
+            //Gl.Enable(EnableCap.DepthTest);
             Gl.DepthFunc(DepthFunction.Less);
             Gl.DepthMask(true);
             // https://developer.nvidia.com/content/depth-precision-visualized
@@ -106,11 +108,13 @@ namespace ChungusEngine
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load(1);
             StbImageSharp.StbImage.stbi_set_flip_vertically_on_load_thread(1);
 
-            GameObjects.Add(new GameObject("models/backpack/backpack.obj", Quaternion.Identity, new Vector3(0.0f, 0.0f, -10.0f), new Vector3(6.0f, 6.0f, 6.0f)));
+            //GameObjects.Add(new GameObject("models/backpack/backpack.obj", Quaternion.Identity, new Vector3(0.0f, 0.0f, -10.0f), new Vector3(6.0f, 6.0f, 6.0f)));
             // Update the delta time provider,
             // now that everything is set up.
             DeltaTime.Update();
         }
+
+        private static Sprite2D sprite = new("BoaBoaLeaf");
 
         private void RenderControl_Render(object sender, GlControlEventArgs e)
         {
@@ -123,10 +127,8 @@ namespace ChungusEngine
             Program.Use();
             // Set uniform state
 
-            Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Camera.View());
-            Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Camera.Projection());
-            Program.SetBool("ApplyViewTransform", true);
-            Program.SetBool("DrawingAABB", false);
+            Gl.UniformMatrix4f(Program.ViewMatrix, 1, false, Matrix4x4f.Identity);
+            Gl.UniformMatrix4f(Program.ProjectionMatrix, 1, false, Camera.OthoProjection);
 
             // Check keyboard state every frame
             // Originally I was using the WinForms-supported
@@ -138,22 +140,8 @@ namespace ChungusEngine
                 KeyboardPoller.PollAndHandleKeyboardState();
             }
 
-            ModelRegistry.DrawAll(Program);
-
-            foreach (var collider in ColliderExtensions.AllColliders)
-            {
-                collider.GetBoundingBox().Draw(Program);
-
-                foreach (var collider2 in ColliderExtensions.AllColliders)
-                {
-                    if (collider != collider2 && collider.TestCollision(collider2))
-                    {
-                        collider.OnCollision(collider.GetBoundingBox(), collider2.GetBoundingBox());
-                        collider2.OnCollision(collider2.GetBoundingBox(), collider.GetBoundingBox());
-                    }
-                }
-            }
-
+            //ModelRegistry.DrawAll(Program);
+            sprite.Renderer.DrawSprite(Program, new(0.0f, 10.0f), new(15.0f, 15.0f), 0.0f, new(1.0f, 1.0f, 0.0f));
             DeltaTime.Update();
         }
 

@@ -145,12 +145,12 @@ namespace ChungusEngine.Graphics
                 }
                 else
                 {
-                    Texture tex = new(OGLServices.TextureFromFile(slot.FilePath, directory), type, slot.FilePath);
-                    TextureCache.TexObjCache.Add(slot.FilePath, tex);
-                    textureToAdd = tex;
+                    //Texture tex = new(OGLServices.TextureFromFile(slot.FilePath, directory), type, slot.FilePath);
+                    //TextureCache.TexObjCache.Add(slot.FilePath, tex);
+                    //textureToAdd = tex;
                 }
 
-                textures.Add(textureToAdd);
+                //textures.Add(textureToAdd);
             }
 
             return textures;

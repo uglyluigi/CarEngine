@@ -62,22 +62,21 @@ namespace ChungusEngine.Graphics
             return id;
         }
 
-        public static uint TextureFromFile(string path, string directory)
+        public static uint TextureFromFile(string path)
         {
-            string filename = $"{directory}/{path}";
 
-            if (TextureCache.Cache.TryGetValue(filename, out uint value))
+            if (TextureCache.Cache.TryGetValue(path, out uint value))
             {
-                Debug.WriteLine($"Texture cache hit for {filename}");
+                Debug.WriteLine($"Texture cache hit for {path}");
                 return value;
             }
             else
             {
-                Debug.WriteLine($"Texture cache miss for {filename}");
+                Debug.WriteLine($"Texture cache miss for {path}");
 
                 uint textureId = GenTexture();
 
-                using (var stream = File.OpenRead(filename))
+                using (var stream = File.OpenRead(path))
                 {
                     ImageResult result = ImageResult.FromStream(stream, ColorComponents.RedGreenBlue);
 
@@ -92,7 +91,7 @@ namespace ChungusEngine.Graphics
                     TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, TextureMagFilter.Linear);
                 }
 
-                TextureCache.Cache.Add(filename, textureId);
+                TextureCache.Cache.Add(path, textureId);
                 return textureId;
             }
         }

@@ -14,7 +14,7 @@ namespace ChungusEngine.Physics.Collision
             {
                 if (BoundsCamera)
                 {
-                    return WindowProvider.Camera.BuildRotationMatrix();
+                    //return WindowProvider.Camera.BuildRotationMatrix();
                 }
 
                 return Matrix4x4f.Identity;
@@ -135,7 +135,7 @@ namespace ChungusEngine.Physics.Collision
 
         public Vector3[] Bounds()
         {
-            if (BoundsCamera) return Bounds(HalfExtents, WindowProvider.Camera.InvertedPosition);
+            //if (BoundsCamera) return Bounds(HalfExtents, WindowProvider.Camera.InvertedPosition);
             return Bounds(HalfExtents, Position);
         }
 
